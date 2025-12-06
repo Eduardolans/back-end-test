@@ -17,7 +17,7 @@ describe('LicenseValidator', () => {
       const result = validator.isLicenseValidForVehicle(
         LicenseType.B,
         futureDate,
-        VehicleType.COCHE
+        VehicleType.coche
       );
 
       expect(result).to.be.true;
@@ -30,7 +30,7 @@ describe('LicenseValidator', () => {
       const result = validator.isLicenseValidForVehicle(
         LicenseType.B,
         pastDate,
-        VehicleType.COCHE
+        VehicleType.coche
       );
 
       expect(result).to.be.false;
@@ -43,7 +43,7 @@ describe('LicenseValidator', () => {
       const result = validator.isLicenseValidForVehicle(
         LicenseType.A,
         futureDate,
-        VehicleType.COCHE
+        VehicleType.coche
       );
 
       expect(result).to.be.false;
@@ -56,7 +56,7 @@ describe('LicenseValidator', () => {
       const result = validator.isLicenseValidForVehicle(
         LicenseType.A,
         futureDate,
-        VehicleType.MOTO
+        VehicleType.moto
       );
 
       expect(result).to.be.true;
@@ -69,7 +69,7 @@ describe('LicenseValidator', () => {
       const result = validator.isLicenseValidForVehicle(
         LicenseType.C,
         futureDate,
-        VehicleType.CAMION
+        VehicleType.camion
       );
 
       expect(result).to.be.true;

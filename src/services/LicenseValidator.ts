@@ -2,9 +2,9 @@ import { LicenseType, VehicleType } from '../models/types';
 
 export class LicenseValidator {
   private readonly licenseVehicleMap: Map<LicenseType, VehicleType> = new Map([
-    [LicenseType.A, VehicleType.MOTO],
-    [LicenseType.B, VehicleType.COCHE],
-    [LicenseType.C, VehicleType.CAMION],
+    [LicenseType.A, VehicleType.moto],
+    [LicenseType.B, VehicleType.coche],
+    [LicenseType.C, VehicleType.camion],
   ]);
 
   public isLicenseValidForVehicle(

@@ -1,35 +1,6 @@
-export enum LicenseType {
-  A = 'A',
-  B = 'B',
-  C = 'C',
-}
+import { LicenseType, VehicleType, User, Vehicle } from '@prisma/client';
 
-export enum VehicleType {
-  COCHE = 'coche',
-  MOTO = 'moto',
-  CAMION = 'camion',
-}
-
-export interface User {
-  id: string;
-  nombre: string;
-  email: string;
-  tipoPermiso: LicenseType;
-  permisoValidoHasta: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Vehicle {
-  id: string;
-  marca: string;
-  modelo: string;
-  matricula: string;
-  tipo: VehicleType;
-  propietarioId: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export { LicenseType, VehicleType, User, Vehicle };
 
 export interface CreateVehicleDTO {
   marca: string;
