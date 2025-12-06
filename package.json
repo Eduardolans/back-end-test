@@ -1,0 +1,60 @@
+{
+  "name": "backend-test-vehicle-registry",
+  "version": "1.0.0",
+  "description": "Vehicle registration system with license validation",
+  "main": "dist/index.js",
+  "scripts": {
+    "help": "echo '\nAvailable scripts:\n  setup - Install dependencies and prepare environment\n  build - Build TypeScript application\n  dev - Run in development mode with hot reload\n  start - Start production build\n  type-check - Check TypeScript types\n  format - Format code with Prettier\n  format:check - Check code formatting\n  lint - Run ESLint\n  lint:fix - Fix ESLint issues\n  test - Run all tests\n  test:watch - Run tests in watch mode\n  test:coverage - Run tests with coverage\n  validate - Run all checks (type-check, lint, format:check, test)\n  prisma:migrate - Run Prisma migrations\n  prisma:generate - Generate Prisma client\n  prisma:studio - Open Prisma Studio\n'",
+    "setup": "npm install && npm run prisma:generate",
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "start": "node dist/index.js",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "eslint src test --ext .ts",
+    "lint:fix": "eslint src test --ext .ts --fix",
+    "test": "mocha -r ts-node/register 'test/**/*.test.ts' --exit",
+    "test:watch": "mocha -r ts-node/register 'test/**/*.test.ts' --watch --watch-files src,test",
+    "test:coverage": "nyc npm run test",
+    "validate": "npm run type-check && npm run lint && npm run format:check && npm run test",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:generate": "prisma generate",
+    "prisma:studio": "prisma studio"
+  },
+  "keywords": [
+    "vehicle",
+    "registration",
+    "backend",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "express": "^4.21.1",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@types/chai": "^5.0.1",
+    "@types/express": "^5.0.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.10.1",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "chai": "^4.5.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
+    "mocha": "^10.8.2",
+    "nyc": "^17.1.0",
+    "prettier": "^3.4.1",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
