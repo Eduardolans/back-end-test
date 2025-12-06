@@ -36,6 +36,18 @@
       }
     ],
     "complexity": ["warn", 5],
-    "no-console": "warn"
-  }
+    "no-console": "warn",
+    "no-unused-expressions": "off"
+  },
+  "overrides": [
+    {
+      "files": ["test/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "max-lines-per-function": "off",
+        "complexity": "off",
+        "@typescript-eslint/no-unused-expressions": "off"
+      }
+    }
+  ]
 }
