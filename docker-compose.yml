@@ -6,7 +6,7 @@ services:
     container_name: vehicle-registry-db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: 12345
       POSTGRES_DB: vehicle_registry
     ports:
       - '5432:5432'

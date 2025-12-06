@@ -1,0 +1,238 @@
+# API Testing Guide
+
+## Quick Start
+
+### 1. Start the server
+```bash
+npm run dev
+```
+
+### 2. Seed the database with test data
+```bash
+npm run seed
+```
+
+This will create:
+- **User 1**: Juan Pérez - License B (valid) - Owns Toyota Corolla
+- **User 2**: María García - License A (valid) - Owns Honda CBR 600
+- **User 3**: Carlos López - License C (valid) - Owns Mercedes Actros
+- **User 4**: Ana Martínez - License B (expired) - No vehicles
+
+### 3. Run automated API tests
+```bash
+npm run test:api
+```
+
+---
+
+## Manual Testing with curl
+
+### Get User IDs
+First, get the user IDs from the seed script output, or use Prisma Studio:
+
+```bash
+# Option 1: Check seed script output (shows all IDs)
+npm run seed
+
+# Option 2: Open Prisma Studio GUI
+npm run prisma:studio
+# Then navigate to http://localhost:5555
+```
+
+Replace `{USER_ID}` in the examples below with actual UUIDs.
+
+---
+
+## Test Scenarios
+
+### ✅ Test 1: Register a new vehicle (SUCCESS)
+
+```bash
+curl -X POST http://localhost:3000/vehiculos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "marca": "Ford",
+    "modelo": "Focus",
+    "matricula": "NEW001",
+    "tipo": "coche",
+    "propietario_id": "{USER_ID_WITH_LICENSE_B}"
+  }'
+```
+
+**Expected**: `201 Created` with vehicle data
+
+---
+
+### ❌ Test 2: Register vehicle with wrong license type (FAIL)
+
+```bash
+curl -X POST http://localhost:3000/vehiculos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "marca": "Volkswagen",
+    "modelo": "Golf",
+    "matricula": "NEW002",
+    "tipo": "coche",
+    "propietario_id": "{USER_ID_WITH_LICENSE_A}"
+  }'
+```
+
+**Expected**: `400 Bad Request` - "Owner does not have valid license"
+
+---
+
+### ❌ Test 3: Register vehicle with expired license (FAIL)
+
+```bash
+curl -X POST http://localhost:3000/vehiculos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "marca": "Seat",
+    "modelo": "Ibiza",
+    "matricula": "NEW003",
+    "tipo": "coche",
+    "propietario_id": "{USER_ID_WITH_EXPIRED_LICENSE}"
+  }'
+```
+
+**Expected**: `400 Bad Request` - "Owner does not have valid license"
+
+---
+
+### ❌ Test 4: Register vehicle with duplicate matricula (FAIL)
+
+```bash
+curl -X POST http://localhost:3000/vehiculos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "marca": "Toyota",
+    "modelo": "Yaris",
+    "matricula": "1234ABC",
+    "tipo": "coche",
+    "propietario_id": "{USER_ID_WITH_LICENSE_B}"
+  }'
+```
+
+**Expected**: `409 Conflict` - "License plate already exists"
+
+---
+
+### ❌ Test 5: Register vehicle for non-existent user (FAIL)
+
+```bash
+curl -X POST http://localhost:3000/vehiculos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "marca": "Audi",
+    "modelo": "A4",
+    "matricula": "NEW004",
+    "tipo": "coche",
+    "propietario_id": "00000000-0000-0000-0000-000000000000"
+  }'
+```
+
+**Expected**: `404 Not Found` - "Owner not found"
+
+---
+
+### ✅ Test 6: Get user's vehicles (SUCCESS)
+
+```bash
+curl -X GET http://localhost:3000/usuarios/{USER_ID}/vehiculos
+```
+
+**Expected**: `200 OK` with array of vehicles
+
+---
+
+### ✅ Test 7: Transfer vehicle ownership (SUCCESS)
+
+First, get a vehicle ID from the seed output or Prisma Studio, then transfer:
+```bash
+curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nuevo_propietario_id": "{NEW_USER_ID_WITH_VALID_LICENSE}"
+  }'
+```
+
+**Expected**: `200 OK` with updated vehicle data
+
+---
+
+### ❌ Test 8: Transfer to same owner (FAIL)
+
+```bash
+curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nuevo_propietario_id": "{CURRENT_OWNER_ID}"
+  }'
+```
+
+**Expected**: `400 Bad Request` - "New owner must be different from current owner"
+
+---
+
+### ❌ Test 9: Transfer to user without valid license (FAIL)
+
+```bash
+curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nuevo_propietario_id": "{USER_ID_WITH_WRONG_LICENSE_TYPE}"
+  }'
+```
+
+**Expected**: `400 Bad Request` - "Owner does not have valid license"
+
+---
+
+### ❌ Test 10: Transfer non-existent vehicle (FAIL)
+
+```bash
+curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000/propietario \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nuevo_propietario_id": "{USER_ID}"
+  }'
+```
+
+**Expected**: `404 Not Found` - "Vehicle not found"
+
+---
+
+## License Type Mapping
+
+| License Type | Can Drive         |
+|--------------|-------------------|
+| A            | moto             |
+| B            | coche            |
+| C            | camion           |
+
+---
+
+## Viewing Database Data
+
+### Option 1: Prisma Studio (Recommended - GUI)
+```bash
+npm run prisma:studio
+```
+Open http://localhost:5555 to view and edit data visually.
+
+### Option 2: TypeScript Script
+Create a custom script to query data using Prisma Client:
+
+```typescript
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
+async function main() {
+  const users = await prisma.user.findMany({
+    include: { ownedVehicles: true }
+  });
+  console.log(JSON.stringify(users, null, 2));
+  await prisma.$disconnect();
+}
+main();
+```
