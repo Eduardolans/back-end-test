@@ -48,6 +48,13 @@
         "complexity": "off",
         "@typescript-eslint/no-unused-expressions": "off"
       }
+    },
+    {
+      "files": ["prisma/**/*.ts"],
+      "rules": {
+        "no-console": "off",
+        "max-lines-per-function": "off"
+      }
     }
   ]
 }

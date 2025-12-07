@@ -103,18 +103,30 @@ async function main(): Promise<void> {
   console.log('==========================================');
   console.log(`User 1: ${user1.nombre} (${user1.id})`);
   console.log(`  - Email: ${user1.email}`);
-  console.log(`  - License: Type B (Valid until ${futureDate.toISOString().split('T')[0]})`);
-  console.log(`  - Vehicle: ${vehicle1.marca} ${vehicle1.modelo} (${vehicle1.matricula})`);
+  console.log(
+    `  - License: Type B (Valid until ${futureDate.toISOString().split('T')[0]})`
+  );
+  console.log(
+    `  - Vehicle: ${vehicle1.marca} ${vehicle1.modelo} (${vehicle1.matricula})`
+  );
   console.log('');
   console.log(`User 2: ${user2.nombre} (${user2.id})`);
   console.log(`  - Email: ${user2.email}`);
-  console.log(`  - License: Type A (Valid until ${futureDate.toISOString().split('T')[0]})`);
-  console.log(`  - Vehicle: ${vehicle2.marca} ${vehicle2.modelo} (${vehicle2.matricula})`);
+  console.log(
+    `  - License: Type A (Valid until ${futureDate.toISOString().split('T')[0]})`
+  );
+  console.log(
+    `  - Vehicle: ${vehicle2.marca} ${vehicle2.modelo} (${vehicle2.matricula})`
+  );
   console.log('');
   console.log(`User 3: ${user3.nombre} (${user3.id})`);
   console.log(`  - Email: ${user3.email}`);
-  console.log(`  - License: Type C (Valid until ${futureDate.toISOString().split('T')[0]})`);
-  console.log(`  - Vehicle: ${vehicle3.marca} ${vehicle3.modelo} (${vehicle3.matricula})`);
+  console.log(
+    `  - License: Type C (Valid until ${futureDate.toISOString().split('T')[0]})`
+  );
+  console.log(
+    `  - Vehicle: ${vehicle3.marca} ${vehicle3.modelo} (${vehicle3.matricula})`
+  );
   console.log('');
   console.log(`User 4: ${user4.nombre} (${user4.id})`);
   console.log(`  - Email: ${user4.email}`);
@@ -125,7 +137,9 @@ async function main(): Promise<void> {
   console.log('');
   console.log(`User 5: ${user5.nombre} (${user5.id})`);
   console.log(`  - Email: ${user5.email}`);
-  console.log(`  - License: Type B (Valid until ${futureDate.toISOString().split('T')[0]})`);
+  console.log(
+    `  - License: Type B (Valid until ${futureDate.toISOString().split('T')[0]})`
+  );
   console.log('  - No vehicles');
   console.log('==========================================\n');
 }
