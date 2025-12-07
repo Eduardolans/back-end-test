@@ -9,11 +9,25 @@ export class UserController {
   ) {}
 
   public getAllUsers = async (
-    _req: Request,
+    req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> => {
     try {
+      const hasPagination =
+        req.query.page !== undefined || req.query.limit !== undefined;
+
+      if (hasPagination) {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const result = await this.userService.getAllUsersPaginated({
+          page,
+          limit,
+        });
+        res.status(200).json(result);
+        return;
+      }
+
       const users = await this.userService.getAllUsers();
       res.status(200).json(users);
     } catch (error) {
