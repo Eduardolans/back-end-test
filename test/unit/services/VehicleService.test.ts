@@ -65,4 +65,39 @@ describe('VehicleService', () => {
       expect(result.matricula).to.equal('1234ABC');
     });
   });
+
+  describe('getAllVehicles', () => {
+    it('should return an array of vehicles', async () => {
+      const mockVehicles = [
+        {
+          id: 'vehicle-1',
+          marca: 'Toyota',
+          modelo: 'Corolla',
+          matricula: '1234ABC',
+          tipo: VehicleType.coche,
+          propietarioId: 'user-1',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: 'vehicle-2',
+          marca: 'Honda',
+          modelo: 'CBR',
+          matricula: '5678XYZ',
+          tipo: VehicleType.moto,
+          propietarioId: 'user-2',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      vehicleRepository.findAll = () => Promise.resolve(mockVehicles);
+
+      const result = await service.getAllVehicles();
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.lengthOf(2);
+      expect(result[0].marca).to.equal('Toyota');
+    });
+  });
 });

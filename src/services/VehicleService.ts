@@ -37,6 +37,10 @@ export class VehicleService {
     return await this.vehicleRepository.findByOwner(ownerId);
   }
 
+  public async getAllVehicles(): Promise<Vehicle[]> {
+    return await this.vehicleRepository.findAll();
+  }
+
   private async validateVehicleExists(vehicleId: string): Promise<Vehicle> {
     const vehicle = await this.vehicleRepository.findById(vehicleId);
     if (vehicle === null) {
