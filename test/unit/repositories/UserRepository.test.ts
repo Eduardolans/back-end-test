@@ -15,4 +15,12 @@ describe('UserRepository', () => {
       expect(result).to.be.null;
     });
   });
+
+  describe('findAll', () => {
+    it('should return an array of users', async () => {
+      const result = await repository.findAll();
+
+      expect(result).to.be.an('array');
+    });
+  });
 });

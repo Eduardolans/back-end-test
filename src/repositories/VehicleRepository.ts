@@ -45,4 +45,8 @@ export class VehicleRepository {
       data: { propietarioId: newOwnerId },
     });
   }
+
+  public async findAll(): Promise<Vehicle[]> {
+    return await this.prisma.vehicle.findMany();
+  }
 }
