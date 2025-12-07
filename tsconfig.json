@@ -26,6 +26,6 @@
     "sourceMap": true,
     "types": ["node", "mocha", "chai"]
   },
-  "include": ["src/**/*", "test/**/*"],
+  "include": ["src/**/*", "test/**/*", "prisma/**/*"],
   "exclude": ["node_modules", "dist"]
 }

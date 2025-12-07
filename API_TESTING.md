@@ -135,7 +135,58 @@ curl -X POST http://localhost:3000/vehiculos \
 
 ---
 
-### ✅ Test 6: Get user's vehicles (SUCCESS)
+### ✅ Test 6: Get all users (SUCCESS)
+
+```bash
+curl -X GET http://localhost:3000/usuarios
+```
+
+**Expected**: `200 OK` with array of all users
+
+**Example Response**:
+```json
+[
+  {
+    "id": "uuid-here",
+    "nombre": "Juan Pérez",
+    "email": "juan.perez@example.com",
+    "tipoPermiso": "B",
+    "permisoValidoHasta": "2027-12-06T19:41:50.361Z",
+    "createdAt": "2025-12-06T19:41:50.363Z",
+    "updatedAt": "2025-12-06T19:41:50.363Z"
+  }
+]
+```
+
+---
+
+### ✅ Test 7: Get all vehicles (SUCCESS)
+
+```bash
+curl -X GET http://localhost:3000/vehiculos
+```
+
+**Expected**: `200 OK` with array of all vehicles
+
+**Example Response**:
+```json
+[
+  {
+    "id": "uuid-here",
+    "marca": "Toyota",
+    "modelo": "Corolla",
+    "matricula": "1234ABC",
+    "tipo": "coche",
+    "propietarioId": "uuid-here",
+    "createdAt": "2025-12-06T19:41:50.377Z",
+    "updatedAt": "2025-12-06T19:41:50.377Z"
+  }
+]
+```
+
+---
+
+### ✅ Test 8: Get user's vehicles (SUCCESS)
 
 ```bash
 curl -X GET http://localhost:3000/usuarios/{USER_ID}/vehiculos
@@ -145,7 +196,7 @@ curl -X GET http://localhost:3000/usuarios/{USER_ID}/vehiculos
 
 ---
 
-### ✅ Test 7: Transfer vehicle ownership (SUCCESS)
+### ✅ Test 9: Transfer vehicle ownership (SUCCESS)
 
 First, get a vehicle ID from the seed output or Prisma Studio, then transfer:
 ```bash
@@ -160,7 +211,7 @@ curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
 
 ---
 
-### ❌ Test 8: Transfer to same owner (FAIL)
+### ❌ Test 10: Transfer to same owner (FAIL)
 
 ```bash
 curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
@@ -174,7 +225,7 @@ curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
 
 ---
 
-### ❌ Test 9: Transfer to user without valid license (FAIL)
+### ❌ Test 11: Transfer to user without valid license (FAIL)
 
 ```bash
 curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
@@ -188,7 +239,7 @@ curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
 
 ---
 
-### ❌ Test 10: Transfer non-existent vehicle (FAIL)
+### ❌ Test 12: Transfer non-existent vehicle (FAIL)
 
 ```bash
 curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000/propietario \
