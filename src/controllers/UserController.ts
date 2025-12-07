@@ -9,7 +9,7 @@ export class UserController {
   ) {}
 
   public getAllUsers = async (
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> => {

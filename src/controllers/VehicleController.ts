@@ -6,7 +6,7 @@ export class VehicleController {
   constructor(private vehicleService: VehicleService) {}
 
   public getAllVehicles = async (
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> => {

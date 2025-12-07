@@ -17,6 +17,7 @@ const vehicleService = new VehicleService(
 );
 const vehicleController = new VehicleController(vehicleService);
 
+router.get('/', vehicleController.getAllVehicles);
 router.post('/', vehicleController.registerVehicle);
 router.put('/:id/propietario', vehicleController.transferOwnership);
 
