@@ -1,6 +1,10 @@
 import { PrismaClient, Vehicle } from '@prisma/client';
 import { getPrismaClient } from '../utils/prisma';
-import { CreateVehicleDTO } from '../models/types';
+import {
+  CreateVehicleDTO,
+  PaginationOptions,
+  PaginatedResult,
+} from '../models/types';
 
 export class VehicleRepository {
   private prisma: PrismaClient;
@@ -48,5 +52,27 @@ export class VehicleRepository {
 
   public async findAll(): Promise<Vehicle[]> {
     return await this.prisma.vehicle.findMany();
+  }
+
+  public async findAllPaginated(
+    options: PaginationOptions
+  ): Promise<PaginatedResult<Vehicle>> {
+    const skip = (options.page - 1) * options.limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.vehicle.findMany({
+        skip,
+        take: options.limit,
+      }),
+      this.prisma.vehicle.count(),
+    ]);
+
+    return {
+      data,
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit),
+    };
   }
 }

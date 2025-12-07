@@ -3,7 +3,12 @@ import { UserRepository } from '../repositories/UserRepository';
 import { VehicleRepository } from '../repositories/VehicleRepository';
 import { AuthorizedDriverRepository } from '../repositories/AuthorizedDriverRepository';
 import { LicenseValidator } from './LicenseValidator';
-import { CreateVehicleDTO, VehicleType } from '../models/types';
+import {
+  CreateVehicleDTO,
+  VehicleType,
+  PaginationOptions,
+  PaginatedResult,
+} from '../models/types';
 import { AppError } from '../middleware/errorHandler';
 
 export class VehicleService {
@@ -41,6 +46,12 @@ export class VehicleService {
 
   public async getAllVehicles(): Promise<Vehicle[]> {
     return await this.vehicleRepository.findAll();
+  }
+
+  public async getAllVehiclesPaginated(
+    options: PaginationOptions
+  ): Promise<PaginatedResult<Vehicle>> {
+    return await this.vehicleRepository.findAllPaginated(options);
   }
 
   public async addAuthorizedDriver(

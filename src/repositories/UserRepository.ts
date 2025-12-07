@@ -1,5 +1,6 @@
 import { PrismaClient, User } from '@prisma/client';
 import { getPrismaClient } from '../utils/prisma';
+import { PaginationOptions, PaginatedResult } from '../models/types';
 
 export class UserRepository {
   private prisma: PrismaClient;
@@ -22,5 +23,27 @@ export class UserRepository {
 
   public async findAll(): Promise<User[]> {
     return await this.prisma.user.findMany();
+  }
+
+  public async findAllPaginated(
+    options: PaginationOptions
+  ): Promise<PaginatedResult<User>> {
+    const skip = (options.page - 1) * options.limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.user.findMany({
+        skip,
+        take: options.limit,
+      }),
+      this.prisma.user.count(),
+    ]);
+
+    return {
+      data,
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit),
+    };
   }
 }
