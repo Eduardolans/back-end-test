@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { VehicleService } from '../../src/services/VehicleService';
 import { UserRepository } from '../../src/repositories/UserRepository';
 import { VehicleRepository } from '../../src/repositories/VehicleRepository';
+import { AuthorizedDriverRepository } from '../../src/repositories/AuthorizedDriverRepository';
 import { LicenseValidator } from '../../src/services/LicenseValidator';
 import { getPrismaClient } from '../../src/utils/prisma';
 import { LicenseType, VehicleType } from '../../src/models/types';
@@ -10,20 +11,24 @@ describe('VehicleService Integration Tests', () => {
   let vehicleService: VehicleService;
   let userRepository: UserRepository;
   let vehicleRepository: VehicleRepository;
+  let authorizedDriverRepository: AuthorizedDriverRepository;
   let testUserId: string;
 
   beforeEach(async () => {
     const prisma = getPrismaClient();
 
+    await prisma.authorizedDriver.deleteMany();
     await prisma.vehicle.deleteMany();
     await prisma.user.deleteMany();
 
     userRepository = new UserRepository();
     vehicleRepository = new VehicleRepository();
+    authorizedDriverRepository = new AuthorizedDriverRepository();
     const licenseValidator = new LicenseValidator();
     vehicleService = new VehicleService(
       userRepository,
       vehicleRepository,
+      authorizedDriverRepository,
       licenseValidator
     );
 
@@ -95,6 +100,45 @@ describe('VehicleService Integration Tests', () => {
 
       const vehicleFromDb = await vehicleRepository.findById(vehicle.id);
       expect(vehicleFromDb?.propietarioId).to.equal(newOwner.id);
+    });
+  });
+
+  describe('addAuthorizedDriver', () => {
+    it('should add authorized driver and persist to database', async () => {
+      const prisma = getPrismaClient();
+      const futureDate = new Date();
+      futureDate.setFullYear(futureDate.getFullYear() + 2);
+
+      const driver = await prisma.user.create({
+        data: {
+          nombre: 'Authorized Driver',
+          email: 'driver@integration.com',
+          tipoPermiso: LicenseType.B,
+          permisoValidoHasta: futureDate,
+        },
+      });
+
+      const vehicle = await vehicleService.registerVehicle({
+        marca: 'Toyota',
+        modelo: 'Camry',
+        matricula: 'INT003',
+        tipo: VehicleType.coche,
+        propietario_id: testUserId,
+      });
+
+      const result = await vehicleService.addAuthorizedDriver(
+        vehicle.id,
+        driver.id
+      );
+
+      expect(result.vehicleId).to.equal(vehicle.id);
+      expect(result.userId).to.equal(driver.id);
+
+      const authDriversFromDb = await authorizedDriverRepository.findByVehicle(
+        vehicle.id
+      );
+      expect(authDriversFromDb).to.have.lengthOf(1);
+      expect(authDriversFromDb[0].userId).to.equal(driver.id);
     });
   });
 });

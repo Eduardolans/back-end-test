@@ -52,4 +52,40 @@ export class VehicleController {
       next(error);
     }
   };
+
+  public addAuthorizedDriver = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const { conductor_id } = req.body as { conductor_id: string };
+
+      const authorizedDriver = await this.vehicleService.addAuthorizedDriver(
+        id,
+        conductor_id
+      );
+
+      res.status(201).json(authorizedDriver);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public removeAuthorizedDriver = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { id, conductorId } = req.params;
+
+      await this.vehicleService.removeAuthorizedDriver(id, conductorId);
+
+      res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  };
 }

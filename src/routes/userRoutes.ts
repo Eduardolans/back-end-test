@@ -4,17 +4,20 @@ import { UserService } from '../services/UserService';
 import { VehicleService } from '../services/VehicleService';
 import { UserRepository } from '../repositories/UserRepository';
 import { VehicleRepository } from '../repositories/VehicleRepository';
+import { AuthorizedDriverRepository } from '../repositories/AuthorizedDriverRepository';
 import { LicenseValidator } from '../services/LicenseValidator';
 
 const router = Router();
 
 const userRepository = new UserRepository();
 const vehicleRepository = new VehicleRepository();
+const authorizedDriverRepository = new AuthorizedDriverRepository();
 const licenseValidator = new LicenseValidator();
 const userService = new UserService(userRepository);
 const vehicleService = new VehicleService(
   userRepository,
   vehicleRepository,
+  authorizedDriverRepository,
   licenseValidator
 );
 const userController = new UserController(userService, vehicleService);

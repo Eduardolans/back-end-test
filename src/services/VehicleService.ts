@@ -54,6 +54,14 @@ export class VehicleService {
     return await this.authorizedDriverRepository.addDriver(vehicleId, userId);
   }
 
+  public async removeAuthorizedDriver(
+    vehicleId: string,
+    userId: string
+  ): Promise<void> {
+    await this.validateVehicleExists(vehicleId);
+    await this.authorizedDriverRepository.removeDriver(vehicleId, userId);
+  }
+
   private async validateVehicleExists(vehicleId: string): Promise<Vehicle> {
     const vehicle = await this.vehicleRepository.findById(vehicleId);
     if (vehicle === null) {
