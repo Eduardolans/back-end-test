@@ -135,8 +135,42 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 5: List user vehicles
-echo -e "${YELLOW}Test 5: Get vehicles for user 1${NC}"
+# Test 5: Get all users
+echo -e "${YELLOW}Test 5: Get all users${NC}"
+echo -e "GET ${API_URL}/usuarios"
+RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/usuarios)
+
+HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
+BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
+
+if [ "$HTTP_CODE" = "200" ]; then
+  USER_COUNT=$(echo "$BODY" | jq '. | length')
+  echo -e "${GREEN}✅ Status: 200 OK${NC}"
+  echo -e "Response: Found ${USER_COUNT} users\n"
+else
+  echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
+  echo -e "Response: ${BODY}\n"
+fi
+
+# Test 6: Get all vehicles
+echo -e "${YELLOW}Test 6: Get all vehicles${NC}"
+echo -e "GET ${API_URL}/vehiculos"
+RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos)
+
+HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
+BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
+
+if [ "$HTTP_CODE" = "200" ]; then
+  VEHICLE_COUNT=$(echo "$BODY" | jq '. | length')
+  echo -e "${GREEN}✅ Status: 200 OK${NC}"
+  echo -e "Response: Found ${VEHICLE_COUNT} vehicles\n"
+else
+  echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
+  echo -e "Response: ${BODY}\n"
+fi
+
+# Test 7: List user vehicles
+echo -e "${YELLOW}Test 7: Get vehicles for user 1${NC}"
 echo -e "GET ${API_URL}/usuarios/${USER1_ID}/vehiculos"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/usuarios/${USER1_ID}/vehiculos)
 
@@ -151,8 +185,8 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 6: Transfer ownership (SUCCESS)
-echo -e "${YELLOW}Test 6: Transfer coche from User1 to User5 (both have License B)${NC}"
+# Test 8: Transfer ownership (SUCCESS)
+echo -e "${YELLOW}Test 8: Transfer coche from User1 to User5 (both have License B)${NC}"
 echo -e "PUT ${API_URL}/vehiculos/${VEHICLE_ID}/propietario"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X PUT ${API_URL}/vehiculos/${VEHICLE_ID}/propietario \
   -H "Content-Type: application/json" \
@@ -171,8 +205,8 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 7: Transfer to same owner (FAIL)
-echo -e "${YELLOW}Test 7: Try to transfer to same owner (should fail)${NC}"
+# Test 9: Transfer to same owner (FAIL)
+echo -e "${YELLOW}Test 9: Try to transfer to same owner (should fail)${NC}"
 echo -e "PUT ${API_URL}/vehiculos/${VEHICLE_ID}/propietario"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X PUT ${API_URL}/vehiculos/${VEHICLE_ID}/propietario \
   -H "Content-Type: application/json" \

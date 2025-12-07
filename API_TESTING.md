@@ -3,24 +3,35 @@
 ## Quick Start
 
 ### 1. Start the server
+
 ```bash
 npm run dev
 ```
 
 ### 2. Seed the database with test data
+
 ```bash
 npm run seed
 ```
 
 This will create:
+
 - **User 1**: Juan Pérez - License B (valid) - Owns Toyota Corolla
 - **User 2**: María García - License A (valid) - Owns Honda CBR 600
 - **User 3**: Carlos López - License C (valid) - Owns Mercedes Actros
 - **User 4**: Ana Martínez - License B (expired) - No vehicles
+- **User 5**: Pedro González - License B (valid) - No vehicles
 
 ### 3. Run automated API tests
+
 ```bash
 npm run test:api
+```
+
+**Important:** If tests fail due to data state (e.g., vehicle already transferred), reseed the database first:
+
+```bash
+npm run seed && npm run test:api
 ```
 
 ---
@@ -28,6 +39,7 @@ npm run test:api
 ## Manual Testing with curl
 
 ### Get User IDs
+
 First, get the user IDs from the seed script output, or use Prisma Studio:
 
 ```bash
@@ -135,7 +147,7 @@ curl -X POST http://localhost:3000/vehiculos \
 
 ---
 
-### ✅ Test 6: Get all users (SUCCESS)
+### ✅ Test 5: Get all users (SUCCESS)
 
 ```bash
 curl -X GET http://localhost:3000/usuarios
@@ -144,6 +156,7 @@ curl -X GET http://localhost:3000/usuarios
 **Expected**: `200 OK` with array of all users
 
 **Example Response**:
+
 ```json
 [
   {
@@ -160,7 +173,7 @@ curl -X GET http://localhost:3000/usuarios
 
 ---
 
-### ✅ Test 7: Get all vehicles (SUCCESS)
+### ✅ Test 6: Get all vehicles (SUCCESS)
 
 ```bash
 curl -X GET http://localhost:3000/vehiculos
@@ -169,6 +182,7 @@ curl -X GET http://localhost:3000/vehiculos
 **Expected**: `200 OK` with array of all vehicles
 
 **Example Response**:
+
 ```json
 [
   {
@@ -186,7 +200,7 @@ curl -X GET http://localhost:3000/vehiculos
 
 ---
 
-### ✅ Test 8: Get user's vehicles (SUCCESS)
+### ✅ Test 7: Get user's vehicles (SUCCESS)
 
 ```bash
 curl -X GET http://localhost:3000/usuarios/{USER_ID}/vehiculos
@@ -196,9 +210,10 @@ curl -X GET http://localhost:3000/usuarios/{USER_ID}/vehiculos
 
 ---
 
-### ✅ Test 9: Transfer vehicle ownership (SUCCESS)
+### ✅ Test 8: Transfer vehicle ownership (SUCCESS)
 
 First, get a vehicle ID from the seed output or Prisma Studio, then transfer:
+
 ```bash
 curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
   -H "Content-Type: application/json" \
@@ -211,7 +226,7 @@ curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
 
 ---
 
-### ❌ Test 10: Transfer to same owner (FAIL)
+### ❌ Test 9: Transfer to same owner (FAIL)
 
 ```bash
 curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
@@ -225,7 +240,11 @@ curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
 
 ---
 
-### ❌ Test 11: Transfer to user without valid license (FAIL)
+## Additional Manual Tests (Not Automated)
+
+These edge cases can be tested manually but are not included in the automated script:
+
+### ❌ Manual Test A: Transfer to user without valid license (FAIL)
 
 ```bash
 curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
@@ -239,7 +258,7 @@ curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
 
 ---
 
-### ❌ Test 12: Transfer non-existent vehicle (FAIL)
+### ❌ Manual Test B: Transfer non-existent vehicle (FAIL)
 
 ```bash
 curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000/propietario \
@@ -253,25 +272,36 @@ curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000
 
 ---
 
+## Test Summary
+
+**Automated Tests (9 total)**: Tests 1-9 are run by `npm run test:api`
+
+**Manual-Only Tests (2 additional)**: Tests A-B are additional edge cases for manual verification
+
+---
+
 ## License Type Mapping
 
-| License Type | Can Drive         |
-|--------------|-------------------|
-| A            | moto             |
-| B            | coche            |
-| C            | camion           |
+| License Type | Can Drive |
+| ------------ | --------- |
+| A            | moto      |
+| B            | coche     |
+| C            | camion    |
 
 ---
 
 ## Viewing Database Data
 
 ### Option 1: Prisma Studio (Recommended - GUI)
+
 ```bash
 npm run prisma:studio
 ```
+
 Open http://localhost:5555 to view and edit data visually.
 
 ### Option 2: TypeScript Script
+
 Create a custom script to query data using Prisma Client:
 
 ```typescript
@@ -280,7 +310,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   const users = await prisma.user.findMany({
-    include: { ownedVehicles: true }
+    include: { ownedVehicles: true },
   });
   console.log(JSON.stringify(users, null, 2));
   await prisma.$disconnect();

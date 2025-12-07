@@ -11,7 +11,9 @@
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "prettier"
   ],
-  "plugins": ["@typescript-eslint"],
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "env": {
     "node": true,
     "es2022": true,
@@ -35,13 +37,18 @@
         "skipComments": true
       }
     ],
-    "complexity": ["warn", 5],
+    "complexity": [
+      "warn",
+      5
+    ],
     "no-console": "warn",
     "no-unused-expressions": "off"
   },
   "overrides": [
     {
-      "files": ["test/**/*.ts"],
+      "files": [
+        "test/**/*.ts"
+      ],
       "rules": {
         "@typescript-eslint/explicit-function-return-type": "off",
         "max-lines-per-function": "off",
@@ -50,7 +57,10 @@
       }
     },
     {
-      "files": ["prisma/**/*.ts"],
+      "files": [
+        "prisma/**/*.ts",
+        "query_data.ts"
+      ],
       "rules": {
         "no-console": "off",
         "max-lines-per-function": "off"
