@@ -1,0 +1,108 @@
+###############################################################################
+# API Testing with REST Client (VSCode Extension)
+#
+# Usage:
+#   1. Start server: npm run dev
+#   2. Seed database: npm run seed
+#   3. Click "Send Request" above any endpoint
+#   4. Replace {USER_ID} and {VEHICLE_ID} with real UUIDs from seed output
+#
+# Get IDs: Check seed script output or run: npm run prisma:studio
+###############################################################################
+
+### Get all users (Bonus endpoint)
+GET http://localhost:3000/usuarios HTTP/1.1
+
+###
+
+### Get all vehicles (Bonus endpoint)
+GET http://localhost:3000/vehiculos HTTP/1.1
+
+###
+
+### Get user's vehicles (Core requirement)
+# Replace {USER_ID} with actual UUID from seed output
+GET http://localhost:3000/usuarios/{USER_ID}/vehiculos HTTP/1.1
+
+###
+
+### Register a new vehicle (Core requirement - SUCCESS)
+# Use a user with License B for a "coche"
+POST http://localhost:3000/vehiculos HTTP/1.1
+Content-Type: application/json
+
+{
+  "marca": "Ford",
+  "modelo": "Focus",
+  "matricula": "NEW001",
+  "tipo": "coche",
+  "propietario_id": "{USER_ID_WITH_LICENSE_B}"
+}
+
+###
+
+### Register vehicle with wrong license (FAIL - 400)
+# Use a user with License A trying to register a "coche"
+POST http://localhost:3000/vehiculos HTTP/1.1
+Content-Type: application/json
+
+{
+  "marca": "Volkswagen",
+  "modelo": "Golf",
+  "matricula": "NEW002",
+  "tipo": "coche",
+  "propietario_id": "{USER_ID_WITH_LICENSE_A}"
+}
+
+###
+
+### Register vehicle with duplicate matricula (FAIL - 409)
+# Using "1234ABC" which exists in seed data
+POST http://localhost:3000/vehiculos HTTP/1.1
+Content-Type: application/json
+
+{
+  "marca": "Toyota",
+  "modelo": "Yaris",
+  "matricula": "1234ABC",
+  "tipo": "coche",
+  "propietario_id": "{USER_ID_WITH_LICENSE_B}"
+}
+
+###
+
+### Transfer vehicle ownership (Core requirement - SUCCESS)
+# Replace {VEHICLE_ID} with actual vehicle UUID
+# Replace {NEW_OWNER_ID} with a user that has appropriate license
+PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario HTTP/1.1
+Content-Type: application/json
+
+{
+  "nuevo_propietario_id": "{NEW_OWNER_ID}"
+}
+
+###
+
+### Transfer to same owner (FAIL - 400)
+PUT http://localhost:3000/vehiculos/033dae44-5945-46ea-8c5f-c98492672a41/propietario HTTP/1.1
+Content-Type: application/json
+
+{
+  "nuevo_propietario_id": "f6a7f563-4846-455a-b06e-43220a1ede8d"
+}
+
+###
+
+###############################################################################
+# License Type Mapping:
+#   - License A → moto
+#   - License B → coche
+#   - License C → camion
+#
+# Seed Data Creates:
+#   - User 1: Juan Pérez - License B (valid) - Owns Toyota Corolla (1234ABC)
+#   - User 2: María García - License A (valid) - Owns Honda CBR 600 (5678DEF)
+#   - User 3: Carlos López - License C (valid) - Owns Mercedes Actros (9012GHI)
+#   - User 4: Ana Martínez - License B (expired) - No vehicles
+#   - User 5: Pedro González - License B (valid) - No vehicles
+###############################################################################
