@@ -5,6 +5,19 @@ import { CreateVehicleDTO, TransferOwnershipDTO } from '../models/types';
 export class VehicleController {
   constructor(private vehicleService: VehicleService) {}
 
+  public getAllVehicles = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const vehicles = await this.vehicleService.getAllVehicles();
+      res.status(200).json(vehicles);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public registerVehicle = async (
     req: Request,
     res: Response,
