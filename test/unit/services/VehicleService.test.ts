@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { VehicleService } from '../../../src/services/VehicleService';
 import { UserRepository } from '../../../src/repositories/UserRepository';
 import { VehicleRepository } from '../../../src/repositories/VehicleRepository';
+import { AuthorizedDriverRepository } from '../../../src/repositories/AuthorizedDriverRepository';
 import { LicenseValidator } from '../../../src/services/LicenseValidator';
 import { LicenseType, VehicleType } from '../../../src/models/types';
 
@@ -9,15 +10,18 @@ describe('VehicleService', () => {
   let service: VehicleService;
   let userRepository: UserRepository;
   let vehicleRepository: VehicleRepository;
+  let authorizedDriverRepository: AuthorizedDriverRepository;
   let licenseValidator: LicenseValidator;
 
   beforeEach(() => {
     userRepository = new UserRepository();
     vehicleRepository = new VehicleRepository();
+    authorizedDriverRepository = new AuthorizedDriverRepository();
     licenseValidator = new LicenseValidator();
     service = new VehicleService(
       userRepository,
       vehicleRepository,
+      authorizedDriverRepository,
       licenseValidator
     );
   });
@@ -98,6 +102,51 @@ describe('VehicleService', () => {
       expect(result).to.be.an('array');
       expect(result).to.have.lengthOf(2);
       expect(result[0].marca).to.equal('Toyota');
+    });
+  });
+
+  describe('addAuthorizedDriver', () => {
+    it('should add authorized driver when user has valid license', async () => {
+      const vehicleId = 'vehicle-123';
+      const userId = 'user-456';
+      const futureDate = new Date();
+      futureDate.setFullYear(futureDate.getFullYear() + 1);
+
+      vehicleRepository.findById = () =>
+        Promise.resolve({
+          id: vehicleId,
+          marca: 'Toyota',
+          modelo: 'Corolla',
+          matricula: '1234ABC',
+          tipo: VehicleType.coche,
+          propietarioId: 'owner-id',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+      userRepository.findById = () =>
+        Promise.resolve({
+          id: userId,
+          nombre: 'Test Driver',
+          email: 'driver@example.com',
+          tipoPermiso: LicenseType.B,
+          permisoValidoHasta: futureDate,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+      authorizedDriverRepository.addDriver = () =>
+        Promise.resolve({
+          id: 'auth-123',
+          vehicleId,
+          userId,
+          createdAt: new Date(),
+        });
+
+      const result = await service.addAuthorizedDriver(vehicleId, userId);
+
+      expect(result.vehicleId).to.equal(vehicleId);
+      expect(result.userId).to.equal(userId);
     });
   });
 });

@@ -1,6 +1,7 @@
-import { Vehicle } from '@prisma/client';
+import { AuthorizedDriver, Vehicle } from '@prisma/client';
 import { UserRepository } from '../repositories/UserRepository';
 import { VehicleRepository } from '../repositories/VehicleRepository';
+import { AuthorizedDriverRepository } from '../repositories/AuthorizedDriverRepository';
 import { LicenseValidator } from './LicenseValidator';
 import { CreateVehicleDTO, VehicleType } from '../models/types';
 import { AppError } from '../middleware/errorHandler';
@@ -9,6 +10,7 @@ export class VehicleService {
   constructor(
     private userRepository: UserRepository,
     private vehicleRepository: VehicleRepository,
+    private authorizedDriverRepository: AuthorizedDriverRepository,
     private licenseValidator: LicenseValidator
   ) {}
 
@@ -39,6 +41,17 @@ export class VehicleService {
 
   public async getAllVehicles(): Promise<Vehicle[]> {
     return await this.vehicleRepository.findAll();
+  }
+
+  public async addAuthorizedDriver(
+    vehicleId: string,
+    userId: string
+  ): Promise<AuthorizedDriver> {
+    const vehicle = await this.validateVehicleExists(vehicleId);
+    await this.validateOwnerExists(userId);
+    await this.validateOwnerLicense(userId, vehicle.tipo);
+
+    return await this.authorizedDriverRepository.addDriver(vehicleId, userId);
   }
 
   private async validateVehicleExists(vehicleId: string): Promise<Vehicle> {
