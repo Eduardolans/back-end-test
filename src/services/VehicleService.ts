@@ -1,7 +1,8 @@
-import { AuthorizedDriver, Vehicle } from '@prisma/client';
+import { AuthorizedDriver, OwnershipHistory, Vehicle } from '@prisma/client';
 import { UserRepository } from '../repositories/UserRepository';
 import { VehicleRepository } from '../repositories/VehicleRepository';
 import { AuthorizedDriverRepository } from '../repositories/AuthorizedDriverRepository';
+import { OwnershipHistoryRepository } from '../repositories/OwnershipHistoryRepository';
 import { LicenseValidator } from './LicenseValidator';
 import {
   CreateVehicleDTO,
@@ -16,6 +17,7 @@ export class VehicleService {
     private userRepository: UserRepository,
     private vehicleRepository: VehicleRepository,
     private authorizedDriverRepository: AuthorizedDriverRepository,
+    private ownershipHistoryRepository: OwnershipHistoryRepository,
     private licenseValidator: LicenseValidator
   ) {}
 
@@ -24,7 +26,13 @@ export class VehicleService {
     await this.validateMatriculaUnique(data.matricula);
     await this.validateOwnerLicense(data.propietario_id, data.tipo);
 
-    return await this.vehicleRepository.create(data);
+    const vehicle = await this.vehicleRepository.create(data);
+    await this.ownershipHistoryRepository.create(
+      vehicle.id,
+      data.propietario_id
+    );
+
+    return vehicle;
   }
 
   public async transferOwnership(
@@ -36,7 +44,19 @@ export class VehicleService {
     this.validateDifferentOwner(vehicle.propietarioId, newOwnerId);
     await this.validateOwnerLicense(newOwnerId, vehicle.tipo);
 
-    return await this.vehicleRepository.updateOwner(vehicleId, newOwnerId);
+    await this.ownershipHistoryRepository.closeCurrentOwnership(
+      vehicleId,
+      vehicle.propietarioId
+    );
+
+    const updatedVehicle = await this.vehicleRepository.updateOwner(
+      vehicleId,
+      newOwnerId
+    );
+
+    await this.ownershipHistoryRepository.create(vehicleId, newOwnerId);
+
+    return updatedVehicle;
   }
 
   public async getVehiclesByOwner(ownerId: string): Promise<Vehicle[]> {
@@ -71,6 +91,13 @@ export class VehicleService {
   ): Promise<void> {
     await this.validateVehicleExists(vehicleId);
     await this.authorizedDriverRepository.removeDriver(vehicleId, userId);
+  }
+
+  public async getOwnershipHistory(
+    vehicleId: string
+  ): Promise<OwnershipHistory[]> {
+    await this.validateVehicleExists(vehicleId);
+    return await this.ownershipHistoryRepository.findByVehicle(vehicleId);
   }
 
   private async validateVehicleExists(vehicleId: string): Promise<Vehicle> {

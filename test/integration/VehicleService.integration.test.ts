@@ -3,6 +3,7 @@ import { VehicleService } from '../../src/services/VehicleService';
 import { UserRepository } from '../../src/repositories/UserRepository';
 import { VehicleRepository } from '../../src/repositories/VehicleRepository';
 import { AuthorizedDriverRepository } from '../../src/repositories/AuthorizedDriverRepository';
+import { OwnershipHistoryRepository } from '../../src/repositories/OwnershipHistoryRepository';
 import { LicenseValidator } from '../../src/services/LicenseValidator';
 import { getPrismaClient } from '../../src/utils/prisma';
 import { LicenseType, VehicleType } from '../../src/models/types';
@@ -12,11 +13,13 @@ describe('VehicleService Integration Tests', () => {
   let userRepository: UserRepository;
   let vehicleRepository: VehicleRepository;
   let authorizedDriverRepository: AuthorizedDriverRepository;
+  let ownershipHistoryRepository: OwnershipHistoryRepository;
   let testUserId: string;
 
   beforeEach(async () => {
     const prisma = getPrismaClient();
 
+    await prisma.ownershipHistory.deleteMany();
     await prisma.authorizedDriver.deleteMany();
     await prisma.vehicle.deleteMany();
     await prisma.user.deleteMany();
@@ -24,11 +27,13 @@ describe('VehicleService Integration Tests', () => {
     userRepository = new UserRepository();
     vehicleRepository = new VehicleRepository();
     authorizedDriverRepository = new AuthorizedDriverRepository();
+    ownershipHistoryRepository = new OwnershipHistoryRepository();
     const licenseValidator = new LicenseValidator();
     vehicleService = new VehicleService(
       userRepository,
       vehicleRepository,
       authorizedDriverRepository,
+      ownershipHistoryRepository,
       licenseValidator
     );
 

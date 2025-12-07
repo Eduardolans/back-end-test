@@ -3,6 +3,7 @@ import { VehicleService } from '../../../src/services/VehicleService';
 import { UserRepository } from '../../../src/repositories/UserRepository';
 import { VehicleRepository } from '../../../src/repositories/VehicleRepository';
 import { AuthorizedDriverRepository } from '../../../src/repositories/AuthorizedDriverRepository';
+import { OwnershipHistoryRepository } from '../../../src/repositories/OwnershipHistoryRepository';
 import { LicenseValidator } from '../../../src/services/LicenseValidator';
 import { LicenseType, VehicleType } from '../../../src/models/types';
 
@@ -11,17 +12,20 @@ describe('VehicleService', () => {
   let userRepository: UserRepository;
   let vehicleRepository: VehicleRepository;
   let authorizedDriverRepository: AuthorizedDriverRepository;
+  let ownershipHistoryRepository: OwnershipHistoryRepository;
   let licenseValidator: LicenseValidator;
 
   beforeEach(() => {
     userRepository = new UserRepository();
     vehicleRepository = new VehicleRepository();
     authorizedDriverRepository = new AuthorizedDriverRepository();
+    ownershipHistoryRepository = new OwnershipHistoryRepository();
     licenseValidator = new LicenseValidator();
     service = new VehicleService(
       userRepository,
       vehicleRepository,
       authorizedDriverRepository,
+      ownershipHistoryRepository,
       licenseValidator
     );
   });
@@ -55,6 +59,16 @@ describe('VehicleService', () => {
           propietarioId: data.propietario_id,
           createdAt: new Date(),
           updatedAt: new Date(),
+        });
+
+      ownershipHistoryRepository.create = () =>
+        Promise.resolve({
+          id: 'history-123',
+          vehicleId: 'vehicle-123',
+          userId: ownerId,
+          fechaInicio: new Date(),
+          fechaFin: null,
+          createdAt: new Date(),
         });
 
       const result = await service.registerVehicle({

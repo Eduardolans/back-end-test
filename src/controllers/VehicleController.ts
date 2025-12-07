@@ -102,4 +102,20 @@ export class VehicleController {
       next(error);
     }
   };
+
+  public getOwnershipHistory = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { id } = req.params;
+
+      const history = await this.vehicleService.getOwnershipHistory(id);
+
+      res.status(200).json(history);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
