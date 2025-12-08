@@ -15,16 +15,16 @@
     "lint": "eslint src test prisma --ext .ts",
     "lint:fix": "eslint src test prisma --ext .ts --fix",
     "test": "mocha -r ts-node/register 'test/**/*.test.ts' --exit",
-    "test:unit": "mocha -r ts-node/register 'test/unit/**/*.test.ts' --exit",
+    "test:api": "chmod +x scripts/test-api.sh && ./scripts/test-api.sh",
     "test:integration": "mocha -r ts-node/register 'test/integration/**/*.test.ts' --exit",
+    "test:unit": "mocha -r ts-node/register 'test/unit/**/*.test.ts' --exit",
     "test:watch": "mocha -r ts-node/register 'test/**/*.test.ts' --watch --watch-files src,test",
     "test:coverage": "nyc npm run test",
     "validate": "npm run type-check && npm run lint && npm run format:check && npm run test",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
-    "seed": "ts-node prisma/seed.ts",
-    "test:api": "chmod +x scripts/test-api.sh && ./scripts/test-api.sh"
+    "seed": "ts-node prisma/seed.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

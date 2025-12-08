@@ -8,6 +8,8 @@
 #   4. Replace {USER_ID} and {VEHICLE_ID} with real UUIDs from seed output
 #
 # Get IDs: Check seed script output or run: npm run prisma:studio
+
+# Reference: See API_TESTING.md for detailed scenario documentation
 ###############################################################################
 
 ### Get all users (Bonus endpoint)

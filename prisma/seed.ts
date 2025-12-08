@@ -1,5 +1,18 @@
 import { PrismaClient } from '@prisma/client';
 
+/**
+ * Database seed script - Creates test data for API testing
+ *
+ * Reference: See API_TESTING.md for scenario documentation
+ *
+ * Test Data Structure:
+ * - User 1 (License B, valid)
+ * - User 2 (License A, valid)
+ * - User 3 (License C, valid)
+ * - User 4 (License B, expired)
+ * - User 5 (License B, valid)
+ */
+
 const prisma = new PrismaClient();
 
 async function main(): Promise<void> {

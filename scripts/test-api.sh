@@ -1,5 +1,19 @@
 #!/bin/bash
 
+###############################################################################
+
+# Automated API Tests for Vehicle Registry
+#
+# This script runs 9 automated test scenarios that align with API_TESTING.md
+# Tests cover POST /vehiculos, GET endpoints, and PUT /vehiculos/{id}/propietario
+#
+# Usage: npm run test:api
+# Requires: Server running (npm run dev) and database seeded (npm run seed)
+#
+# Reference: See API_TESTING.md for detailed scenario documentation
+
+###############################################################################
+
 # Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'

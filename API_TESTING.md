@@ -1,5 +1,116 @@
 # API Testing Guide
 
+This project uses a **three-tier testing strategy** covering unit tests, integration tests, and API endpoint tests.
+
+---
+
+## Testing Overview
+
+| Test Type             | Scope                              | Command                    | Coverage                                                    |
+| --------------------- | ---------------------------------- | -------------------------- | ----------------------------------------------------------- |
+| **Unit Tests**        | Individual services & repositories | `npm run test:unit`        | VehicleService, UserService, Repositories, LicenseValidator |
+| **Integration Tests** | Services with real database        | `npm run test:integration` | Database persistence, relationships                         |
+| **API Tests**         | HTTP endpoints (curl-based)        | `npm run test:api`         | REST endpoint validation                                    |
+| **All Tests**         | Run all test suites                | `npm run test`             | Full coverage                                               |
+| **Coverage Report**   | Test coverage metrics              | `npm run test:coverage`    | Overall code coverage                                       |
+
+---
+
+## Quick Start: Running Tests
+
+### Run All Tests
+
+```bash
+npm run test
+```
+
+### Run Specific Test Suites
+
+```bash
+# Unit tests only
+npm run test:unit
+
+# Integration tests only
+npm run test:integration
+
+# API endpoint tests (requires running server)
+npm run test:api
+
+# Watch mode (auto-rerun on file changes)
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
+```
+
+---
+
+## Unit Tests
+
+### Overview
+
+Unit tests isolate individual components (services, repositories, validators) and test them independently using mocks.
+
+### Test Files
+
+- `test/unit/services/VehicleService.test.ts` - Vehicle registration, transfers, authorized drivers
+- `test/unit/services/UserService.test.ts` - User retrieval and management
+- `test/unit/services/LicenseValidator.test.ts` - License validation logic
+- `test/unit/repositories/VehicleRepository.test.ts` - Vehicle repository queries
+- `test/unit/repositories/UserRepository.test.ts` - User repository queries
+- `test/unit/repositories/AuthorizedDriverRepository.test.ts` - Authorized driver queries
+
+### Key Test Cases Covered
+
+- ✅ Register vehicle with valid license
+- ✅ Reject vehicle registration with expired license
+- ✅ Reject vehicle registration with wrong license type
+- ✅ Transfer vehicle ownership with validation
+- ✅ Add authorized drivers to vehicles
+- ✅ License validation (type matching & expiration)
+- ✅ Database queries (find, create, update)
+
+### Run Unit Tests
+
+```bash
+npm run test:unit
+```
+
+---
+
+## Integration Tests
+
+### Overview
+
+Integration tests verify that services work correctly with the real Prisma ORM and database, testing data persistence and relationships.
+
+### Test Files
+
+- `test/integration/VehicleService.integration.test.ts` - Vehicle operations with database
+- `test/integration/UserService.integration.test.ts` - User operations with database
+
+### Key Test Cases Covered
+
+- ✅ Register vehicle and persist to database
+- ✅ Transfer vehicle ownership and update database
+- ✅ Add authorized driver and persist relationship
+- ✅ Retrieve user's vehicles from database
+- ✅ Verify ownership history is recorded
+
+### Run Integration Tests
+
+```bash
+npm run test:integration
+```
+
+---
+
+# API Endpoint Tests
+
+### Overview
+
+API tests use curl to validate HTTP endpoints with actual HTTP responses, status codes, and payloads.
+
 ## Quick Start
 
 ### 1. Start the server
