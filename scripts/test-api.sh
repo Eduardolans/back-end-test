@@ -4,8 +4,12 @@
 
 # Automated API Tests for Vehicle Registry
 #
-# This script runs 9 automated test scenarios that align with API_TESTING.md
-# Tests cover POST /vehiculos, GET endpoints, and PUT /vehiculos/{id}/propietario
+# This script runs 13 automated test scenarios that align with API_TESTING.md
+# Tests cover:
+#   - Core requirements (Tests 1-9)
+#   - Extra 1: Authorized drivers (Test 10)
+#   - Extra 3: Ownership history (Test 11)
+#   - Bonus: Pagination (Tests 12-13)
 #
 # Usage: npm run test:api
 # Requires: Server running (npm run dev) and database seeded (npm run seed)
@@ -236,6 +240,83 @@ if [ "$HTTP_CODE" = "400" ]; then
   echo -e "Response: ${BODY}\n"
 else
   echo -e "${RED}❌ Status: ${HTTP_CODE} (Expected 400)${NC}"
+  echo -e "Response: ${BODY}\n"
+fi
+
+# Test 10: Add authorized driver (SUCCESS)
+echo -e "${YELLOW}Test 10: Add authorized driver to vehicle${NC}"
+echo -e "POST ${API_URL}/vehiculos/${VEHICLE_ID}/conductores"
+RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST ${API_URL}/vehiculos/${VEHICLE_ID}/conductores \
+  -H "Content-Type: application/json" \
+  -d '{
+    "conductor_id": "'"${USER1_ID}"'"
+  }')
+
+HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
+BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
+
+if [ "$HTTP_CODE" = "201" ]; then
+  echo -e "${GREEN}✅ Status: 201 Created${NC}"
+  echo -e "Response: ${BODY}\n"
+else
+  echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
+  echo -e "Response: ${BODY}\n"
+fi
+
+# Test 11: Get ownership history (SUCCESS)
+echo -e "${YELLOW}Test 11: Get vehicle ownership history${NC}"
+echo -e "GET ${API_URL}/vehiculos/${VEHICLE_ID}/historial"
+RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos/${VEHICLE_ID}/historial)
+
+HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
+BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
+
+if [ "$HTTP_CODE" = "200" ]; then
+  HISTORY_COUNT=$(echo "$BODY" | jq '. | length')
+  echo -e "${GREEN}✅ Status: 200 OK${NC}"
+  echo -e "Response: Found ${HISTORY_COUNT} ownership records\n"
+else
+  echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
+  echo -e "Response: ${BODY}\n"
+fi
+
+# Test 12: Pagination for users (SUCCESS)
+echo -e "${YELLOW}Test 12: Get users with pagination${NC}"
+echo -e "GET ${API_URL}/usuarios?page=1&limit=2"
+RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET "${API_URL}/usuarios?page=1&limit=2")
+
+HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
+BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
+
+if [ "$HTTP_CODE" = "200" ]; then
+  PAGE=$(echo "$BODY" | jq '.page')
+  LIMIT=$(echo "$BODY" | jq '.limit')
+  TOTAL=$(echo "$BODY" | jq '.total')
+  TOTAL_PAGES=$(echo "$BODY" | jq '.totalPages')
+  echo -e "${GREEN}✅ Status: 200 OK${NC}"
+  echo -e "Pagination: Page ${PAGE}/${TOTAL_PAGES}, Limit: ${LIMIT}, Total: ${TOTAL}\n"
+else
+  echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
+  echo -e "Response: ${BODY}\n"
+fi
+
+# Test 13: Pagination for vehicles (SUCCESS)
+echo -e "${YELLOW}Test 13: Get vehicles with pagination${NC}"
+echo -e "GET ${API_URL}/vehiculos?page=1&limit=2"
+RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET "${API_URL}/vehiculos?page=1&limit=2")
+
+HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
+BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
+
+if [ "$HTTP_CODE" = "200" ]; then
+  PAGE=$(echo "$BODY" | jq '.page')
+  LIMIT=$(echo "$BODY" | jq '.limit')
+  TOTAL=$(echo "$BODY" | jq '.total')
+  TOTAL_PAGES=$(echo "$BODY" | jq '.totalPages')
+  echo -e "${GREEN}✅ Status: 200 OK${NC}"
+  echo -e "Pagination: Page ${PAGE}/${TOTAL_PAGES}, Limit: ${LIMIT}, Total: ${TOTAL}\n"
+else
+  echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
   echo -e "Response: ${BODY}\n"
 fi
 

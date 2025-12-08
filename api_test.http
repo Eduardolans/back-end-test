@@ -8,7 +8,13 @@
 #   4. Replace {USER_ID} and {VEHICLE_ID} with real UUIDs from seed output
 #
 # Get IDs: Check seed script output or run: npm run prisma:studio
-
+#
+# This file includes tests for:
+#   - Core requirements (register, transfer, list vehicles)
+#   - Extra 1: Authorized drivers (add/remove)
+#   - Extra 3: Ownership history
+#   - Bonus: Pagination
+#
 # Reference: See API_TESTING.md for detailed scenario documentation
 ###############################################################################
 
@@ -92,6 +98,57 @@ Content-Type: application/json
 {
   "nuevo_propietario_id": "f6a7f563-4846-455a-b06e-43220a1ede8d"
 }
+
+###
+
+### Register vehicle with expired license (FAIL - 400)
+# User 4 has expired license
+POST http://localhost:3000/vehiculos HTTP/1.1
+Content-Type: application/json
+
+{
+  "marca": "Seat",
+  "modelo": "Ibiza",
+  "matricula": "EXPIRED001",
+  "tipo": "coche",
+  "propietario_id": "{USER_ID_WITH_EXPIRED_LICENSE}"
+}
+
+###
+
+### Add authorized driver to vehicle (Extra 1 - SUCCESS)
+# Replace {VEHICLE_ID} with actual vehicle UUID
+# Replace {CONDUCTOR_ID} with user UUID with valid license
+POST http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores HTTP/1.1
+Content-Type: application/json
+
+{
+  "conductor_id": "{CONDUCTOR_ID}"
+}
+
+###
+
+### Remove authorized driver (Extra 1 - SUCCESS)
+# Replace {VEHICLE_ID} and {CONDUCTOR_ID} with actual UUIDs
+DELETE http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores/{CONDUCTOR_ID} HTTP/1.1
+
+###
+
+### Get vehicle ownership history (Extra 3 - SUCCESS)
+# Replace {VEHICLE_ID} with actual vehicle UUID
+GET http://localhost:3000/vehiculos/{VEHICLE_ID}/historial HTTP/1.1
+
+###
+
+### Get users with pagination (Bonus - SUCCESS)
+# Get page 1 with 10 items per page
+GET http://localhost:3000/usuarios?page=1&limit=10 HTTP/1.1
+
+###
+
+### Get vehicles with pagination (Bonus - SUCCESS)
+# Get page 2 with 5 items per page
+GET http://localhost:3000/vehiculos?page=2&limit=5 HTTP/1.1
 
 ###
 

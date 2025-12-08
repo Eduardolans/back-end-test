@@ -351,6 +351,181 @@ curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
 
 ---
 
+### ✅ Test 10: Add authorized driver (SUCCESS)
+
+**Extra 1: Múltiples conductores**
+
+```bash
+curl -X POST http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores \
+  -H "Content-Type: application/json" \
+  -d '{
+    "conductor_id": "{USER_ID_WITH_VALID_LICENSE}"
+  }'
+```
+
+**Validations:**
+- Vehicle must exist
+- User (conductor) must exist
+- User must have valid license for vehicle type
+- License must not be expired
+- User cannot already be an authorized driver
+
+**Response:** `201 Created` with authorized driver data
+
+**Example Response:**
+```json
+{
+  "id": "auth-driver-123",
+  "vehicleId": "vehicle-abc",
+  "userId": "user-456",
+  "createdAt": "2025-12-08T10:00:00.000Z"
+}
+```
+
+**Errors possible:**
+- `400 Bad Request` - License validation fails
+- `404 Not Found` - Vehicle or user not found
+- `409 Conflict` - User already authorized
+
+---
+
+### ✅ Test 11: Remove authorized driver (SUCCESS)
+
+**Extra 1: Múltiples conductores**
+
+```bash
+curl -X DELETE http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores/{CONDUCTOR_ID}
+```
+
+**Validations:**
+- Vehicle must exist
+
+**Response:** `204 No Content`
+
+**Errors possible:**
+- `404 Not Found` - Vehicle not found
+
+---
+
+### ✅ Test 12: Get vehicle ownership history (SUCCESS)
+
+**Extra 3: Historial de propietarios**
+
+```bash
+curl -X GET http://localhost:3000/vehiculos/{VEHICLE_ID}/historial
+```
+
+**Validations:**
+- Vehicle must exist
+
+**Response:** `200 OK` with ownership history
+
+**Example Response:**
+```json
+[
+  {
+    "id": "history-1",
+    "vehicleId": "vehicle-abc",
+    "userId": "user-123",
+    "fechaInicio": "2025-01-01T00:00:00.000Z",
+    "fechaFin": "2025-06-01T00:00:00.000Z",
+    "createdAt": "2025-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "history-2",
+    "vehicleId": "vehicle-abc",
+    "userId": "user-456",
+    "fechaInicio": "2025-06-01T00:00:00.000Z",
+    "fechaFin": null,
+    "createdAt": "2025-06-01T00:00:00.000Z"
+  }
+]
+```
+
+**Note:** History is ordered by `fechaInicio` descending (most recent first). Current owner has `fechaFin: null`.
+
+**Errors possible:**
+- `404 Not Found` - Vehicle not found
+
+---
+
+### ✅ Test 13: Pagination for users (SUCCESS)
+
+**Bonus feature: Pagination support**
+
+```bash
+curl -X GET "http://localhost:3000/usuarios?page=1&limit=10"
+```
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10)
+
+**Response:** `200 OK` with paginated results
+
+**Example Response:**
+```json
+{
+  "data": [
+    {
+      "id": "user-123",
+      "nombre": "Juan Pérez",
+      "email": "juan.perez@example.com",
+      "tipoPermiso": "B",
+      "permisoValidoHasta": "2027-12-06T19:41:50.361Z",
+      "createdAt": "2025-12-06T19:41:50.363Z",
+      "updatedAt": "2025-12-06T19:41:50.363Z"
+    }
+  ],
+  "total": 50,
+  "page": 1,
+  "limit": 10,
+  "totalPages": 5
+}
+```
+
+---
+
+### ✅ Test 14: Pagination for vehicles (SUCCESS)
+
+**Bonus feature: Pagination support**
+
+```bash
+curl -X GET "http://localhost:3000/vehiculos?page=2&limit=5"
+```
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10)
+
+**Response:** `200 OK` with paginated results
+
+**Example Response:**
+```json
+{
+  "data": [
+    {
+      "id": "vehicle-abc",
+      "marca": "Toyota",
+      "modelo": "Corolla",
+      "matricula": "1234ABC",
+      "tipo": "coche",
+      "propietarioId": "user-123",
+      "createdAt": "2025-12-06T19:41:50.377Z",
+      "updatedAt": "2025-12-06T19:41:50.377Z"
+    }
+  ],
+  "total": 25,
+  "page": 2,
+  "limit": 5,
+  "totalPages": 5
+}
+```
+
+**Note:** If `page` or `limit` are not provided, the endpoint returns all records (unpaginated).
+
+---
+
 ## Additional Manual Tests (Not Automated)
 
 These edge cases can be tested manually but are not included in the automated script:
@@ -385,9 +560,16 @@ curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000
 
 ## Test Summary
 
-**Automated Tests (9 total)**: Tests 1-9 are run by `npm run test:api`
+**Core Requirements (9 automated tests)**: Tests 1-9 are run by `npm run test:api`
+
+**Extra Features (5 documented tests)**: Tests 10-14 cover authorized drivers, ownership history, and pagination
+- Test 10-11: Extra 1 (Authorized drivers)
+- Test 12: Extra 3 (Ownership history)
+- Test 13-14: Bonus (Pagination)
 
 **Manual-Only Tests (2 additional)**: Tests A-B are additional edge cases for manual verification
+
+**Total documented tests: 16** (9 automated + 5 extra features + 2 manual)
 
 ---
 
