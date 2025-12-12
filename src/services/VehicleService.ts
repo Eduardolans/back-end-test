@@ -38,9 +38,8 @@ export class VehicleService {
     vehicleId: string,
     newOwnerId: string
   ): Promise<Vehicle> {
-    const vehicle = await this.vehicleValidator.validateVehicleExists(
-      vehicleId
-    );
+    const vehicle =
+      await this.vehicleValidator.validateVehicleExists(vehicleId);
     await this.vehicleValidator.validateOwnerExists(newOwnerId);
     this.vehicleValidator.validateDifferentOwner(
       vehicle.propietarioId,
@@ -82,9 +81,8 @@ export class VehicleService {
     vehicleId: string,
     userId: string
   ): Promise<AuthorizedDriver> {
-    const vehicle = await this.vehicleValidator.validateVehicleExists(
-      vehicleId
-    );
+    const vehicle =
+      await this.vehicleValidator.validateVehicleExists(vehicleId);
     await this.vehicleValidator.validateOwnerExists(userId);
     await this.vehicleValidator.validateOwnerLicense(userId, vehicle.tipo);
 

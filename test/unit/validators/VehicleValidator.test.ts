@@ -3,7 +3,10 @@ import { VehicleValidator } from '../../../src/validators/VehicleValidator';
 import { UserRepository } from '../../../src/repositories/UserRepository';
 import { VehicleRepository } from '../../../src/repositories/VehicleRepository';
 import { LicenseValidator } from '../../../src/services/LicenseValidator';
-import { NotFoundError, DuplicityError } from '../../../src/errors/DomainErrors';
+import {
+  NotFoundError,
+  DuplicityError,
+} from '../../../src/errors/DomainErrors';
 import { LicenseType, VehicleType } from '../../../src/models/types';
 
 describe('VehicleValidator', () => {
