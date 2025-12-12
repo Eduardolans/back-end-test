@@ -7,6 +7,7 @@ import { VehicleRepository } from '../repositories/VehicleRepository';
 import { AuthorizedDriverRepository } from '../repositories/AuthorizedDriverRepository';
 import { OwnershipHistoryRepository } from '../repositories/OwnershipHistoryRepository';
 import { LicenseValidator } from '../services/LicenseValidator';
+import { VehicleValidator } from '../validators/VehicleValidator';
 
 const router = Router();
 
@@ -15,13 +16,17 @@ const vehicleRepository = new VehicleRepository();
 const authorizedDriverRepository = new AuthorizedDriverRepository();
 const ownershipHistoryRepository = new OwnershipHistoryRepository();
 const licenseValidator = new LicenseValidator();
+const vehicleValidator = new VehicleValidator(
+  userRepository,
+  vehicleRepository,
+  licenseValidator
+);
 const userService = new UserService(userRepository);
 const vehicleService = new VehicleService(
-  userRepository,
   vehicleRepository,
   authorizedDriverRepository,
   ownershipHistoryRepository,
-  licenseValidator
+  vehicleValidator
 );
 const userController = new UserController(userService, vehicleService);
 

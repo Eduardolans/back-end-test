@@ -5,6 +5,7 @@ import { VehicleRepository } from '../../src/repositories/VehicleRepository';
 import { AuthorizedDriverRepository } from '../../src/repositories/AuthorizedDriverRepository';
 import { OwnershipHistoryRepository } from '../../src/repositories/OwnershipHistoryRepository';
 import { LicenseValidator } from '../../src/services/LicenseValidator';
+import { VehicleValidator } from '../../src/validators/VehicleValidator';
 import { getPrismaClient } from '../../src/utils/prisma';
 import { LicenseType, VehicleType } from '../../src/models/types';
 
@@ -29,12 +30,16 @@ describe('VehicleService Integration Tests', () => {
     authorizedDriverRepository = new AuthorizedDriverRepository();
     ownershipHistoryRepository = new OwnershipHistoryRepository();
     const licenseValidator = new LicenseValidator();
-    vehicleService = new VehicleService(
+    const vehicleValidator = new VehicleValidator(
       userRepository,
+      vehicleRepository,
+      licenseValidator
+    );
+    vehicleService = new VehicleService(
       vehicleRepository,
       authorizedDriverRepository,
       ownershipHistoryRepository,
-      licenseValidator
+      vehicleValidator
     );
 
     const futureDate = new Date();

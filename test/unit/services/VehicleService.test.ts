@@ -5,6 +5,7 @@ import { VehicleRepository } from '../../../src/repositories/VehicleRepository';
 import { AuthorizedDriverRepository } from '../../../src/repositories/AuthorizedDriverRepository';
 import { OwnershipHistoryRepository } from '../../../src/repositories/OwnershipHistoryRepository';
 import { LicenseValidator } from '../../../src/services/LicenseValidator';
+import { VehicleValidator } from '../../../src/validators/VehicleValidator';
 import { LicenseType, VehicleType } from '../../../src/models/types';
 
 describe('VehicleService', () => {
@@ -14,6 +15,7 @@ describe('VehicleService', () => {
   let authorizedDriverRepository: AuthorizedDriverRepository;
   let ownershipHistoryRepository: OwnershipHistoryRepository;
   let licenseValidator: LicenseValidator;
+  let vehicleValidator: VehicleValidator;
 
   beforeEach(() => {
     userRepository = new UserRepository();
@@ -21,12 +23,16 @@ describe('VehicleService', () => {
     authorizedDriverRepository = new AuthorizedDriverRepository();
     ownershipHistoryRepository = new OwnershipHistoryRepository();
     licenseValidator = new LicenseValidator();
-    service = new VehicleService(
+    vehicleValidator = new VehicleValidator(
       userRepository,
+      vehicleRepository,
+      licenseValidator
+    );
+    service = new VehicleService(
       vehicleRepository,
       authorizedDriverRepository,
       ownershipHistoryRepository,
-      licenseValidator
+      vehicleValidator
     );
   });
 
