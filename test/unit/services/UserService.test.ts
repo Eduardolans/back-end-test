@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { UserService } from '../../../src/services/UserService';
 import { UserRepository } from '../../../src/repositories/UserRepository';
 import { LicenseType } from '../../../src/models/types';
+import { NotFoundError } from '../../../src/errors/DomainErrors';
 
 describe('UserService', () => {
   let service: UserService;
@@ -62,7 +63,19 @@ describe('UserService', () => {
       const result = await service.getUserById('user-123');
 
       expect(result).to.not.be.null;
-      expect(result?.nombre).to.equal('Test User');
+      expect(result.nombre).to.equal('Test User');
+    });
+
+    it('should throw NotFoundError when user not found', async () => {
+      userRepository.findById = () => Promise.resolve(null);
+
+      try {
+        await service.getUserById('nonexistent-id');
+        expect.fail('Should have thrown NotFoundError');
+      } catch (error) {
+        expect(error).to.be.instanceOf(NotFoundError);
+        expect((error as NotFoundError).message).to.include('User');
+      }
     });
   });
 });

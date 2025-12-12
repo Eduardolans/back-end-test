@@ -1,6 +1,7 @@
 import { User } from '@prisma/client';
 import { UserRepository } from '../repositories/UserRepository';
 import { PaginationOptions, PaginatedResult } from '../models/types';
+import { NotFoundError } from '../errors/DomainErrors';
 
 export class UserService {
   constructor(private userRepository: UserRepository) {}
@@ -15,7 +16,11 @@ export class UserService {
     return await this.userRepository.findAllPaginated(options);
   }
 
-  public async getUserById(id: string): Promise<User | null> {
-    return await this.userRepository.findById(id);
+  public async getUserById(id: string): Promise<User> {
+    const user = await this.userRepository.findById(id);
+    if (user === null) {
+      throw new NotFoundError('User', id);
+    }
+    return user;
   }
 }
