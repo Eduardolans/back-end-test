@@ -13,8 +13,8 @@ export type VehicleData = Vehicle & {
 export class VehicleRepository {
   private prisma: PrismaClient;
 
-  constructor() {
-    this.prisma = getPrismaClient();
+  constructor(prisma?: PrismaClient) {
+    this.prisma = prisma || getPrismaClient();
   }
 
   public async create(data: CreateVehicleDTO): Promise<VehicleData> {

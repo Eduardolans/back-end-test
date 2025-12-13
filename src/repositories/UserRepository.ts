@@ -5,8 +5,8 @@ import { PaginationOptions, PaginatedResult } from '../models/types';
 export class UserRepository {
   private prisma: PrismaClient;
 
-  constructor() {
-    this.prisma = getPrismaClient();
+  constructor(prisma?: PrismaClient) {
+    this.prisma = prisma || getPrismaClient();
   }
 
   public async findById(id: string): Promise<User | null> {
