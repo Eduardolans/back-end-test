@@ -275,12 +275,12 @@ curl -X GET http://localhost:3000/usuarios
     "nombre": "Juan Pérez",
     "email": "juan.perez@example.com",
     "tipoPermiso": "B",
-    "permisoValidoHasta": "2027-12-06T19:41:50.361Z",
-    "createdAt": "2025-12-06T19:41:50.363Z",
-    "updatedAt": "2025-12-06T19:41:50.363Z"
+    "permisoValidoHasta": "2027-12-06T19:41:50.361Z"
   }
 ]
 ```
+
+**Note:** Business models do not expose internal fields like `createdAt` or `updatedAt`.
 
 ---
 
@@ -302,12 +302,18 @@ curl -X GET http://localhost:3000/vehiculos
     "modelo": "Corolla",
     "matricula": "1234ABC",
     "tipo": "coche",
-    "propietarioId": "uuid-here",
-    "createdAt": "2025-12-06T19:41:50.377Z",
-    "updatedAt": "2025-12-06T19:41:50.377Z"
+    "propietario": {
+      "id": "owner-uuid",
+      "nombre": "Juan Pérez",
+      "email": "juan.perez@example.com",
+      "tipoPermiso": "B",
+      "permisoValidoHasta": "2027-12-06T19:41:50.361Z"
+    }
   }
 ]
 ```
+
+**Note:** Business models return the complete `propietario` object instead of just `propietarioId`. Internal fields (`createdAt`, `updatedAt`) are not exposed.
 
 ---
 
@@ -377,10 +383,17 @@ curl -X POST http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores \
 {
   "id": "auth-driver-123",
   "vehicleId": "vehicle-abc",
-  "userId": "user-456",
-  "createdAt": "2025-12-08T10:00:00.000Z"
+  "driver": {
+    "id": "user-456",
+    "nombre": "Pedro González",
+    "email": "pedro.gonzalez@example.com",
+    "tipoPermiso": "B",
+    "permisoValidoHasta": "2027-12-06T19:41:50.361Z"
+  }
 }
 ```
+
+**Note:** Returns the complete `driver` object instead of just `userId`. Internal fields are not exposed.
 
 **Errors possible:**
 - `400 Bad Request` - License validation fails
@@ -426,21 +439,33 @@ curl -X GET http://localhost:3000/vehiculos/{VEHICLE_ID}/historial
   {
     "id": "history-1",
     "vehicleId": "vehicle-abc",
-    "userId": "user-123",
+    "owner": {
+      "id": "user-123",
+      "nombre": "Juan Pérez",
+      "email": "juan.perez@example.com",
+      "tipoPermiso": "B",
+      "permisoValidoHasta": "2027-12-06T19:41:50.361Z"
+    },
     "fechaInicio": "2025-01-01T00:00:00.000Z",
-    "fechaFin": "2025-06-01T00:00:00.000Z",
-    "createdAt": "2025-01-01T00:00:00.000Z"
+    "fechaFin": "2025-06-01T00:00:00.000Z"
   },
   {
     "id": "history-2",
     "vehicleId": "vehicle-abc",
-    "userId": "user-456",
+    "owner": {
+      "id": "user-456",
+      "nombre": "María García",
+      "email": "maria.garcia@example.com",
+      "tipoPermiso": "B",
+      "permisoValidoHasta": "2027-12-06T19:41:50.361Z"
+    },
     "fechaInicio": "2025-06-01T00:00:00.000Z",
-    "fechaFin": null,
-    "createdAt": "2025-06-01T00:00:00.000Z"
+    "fechaFin": null
   }
 ]
 ```
+
+**Note:** Returns the complete `owner` object instead of just `userId`. Internal fields are not exposed.
 
 **Note:** History is ordered by `fechaInicio` descending (most recent first). Current owner has `fechaFin: null`.
 
@@ -472,9 +497,7 @@ curl -X GET "http://localhost:3000/usuarios?page=1&limit=10"
       "nombre": "Juan Pérez",
       "email": "juan.perez@example.com",
       "tipoPermiso": "B",
-      "permisoValidoHasta": "2027-12-06T19:41:50.361Z",
-      "createdAt": "2025-12-06T19:41:50.363Z",
-      "updatedAt": "2025-12-06T19:41:50.363Z"
+      "permisoValidoHasta": "2027-12-06T19:41:50.361Z"
     }
   ],
   "total": 50,
@@ -483,6 +506,8 @@ curl -X GET "http://localhost:3000/usuarios?page=1&limit=10"
   "totalPages": 5
 }
 ```
+
+**Note:** Business models in the `data` array do not expose internal fields.
 
 ---
 
@@ -510,9 +535,13 @@ curl -X GET "http://localhost:3000/vehiculos?page=2&limit=5"
       "modelo": "Corolla",
       "matricula": "1234ABC",
       "tipo": "coche",
-      "propietarioId": "user-123",
-      "createdAt": "2025-12-06T19:41:50.377Z",
-      "updatedAt": "2025-12-06T19:41:50.377Z"
+      "propietario": {
+        "id": "user-123",
+        "nombre": "Juan Pérez",
+        "email": "juan.perez@example.com",
+        "tipoPermiso": "B",
+        "permisoValidoHasta": "2027-12-06T19:41:50.361Z"
+      }
     }
   ],
   "total": 25,
@@ -521,6 +550,8 @@ curl -X GET "http://localhost:3000/vehiculos?page=2&limit=5"
   "totalPages": 5
 }
 ```
+
+**Note:** Business models in the `data` array return the complete `propietario` object instead of `propietarioId`. Internal fields are not exposed.
 
 **Note:** If `page` or `limit` are not provided, the endpoint returns all records (unpaginated).
 
