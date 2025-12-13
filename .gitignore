@@ -8,6 +8,10 @@ yarn.lock
 # Testing
 coverage
 
+# Test files to ignore
+test/integration/AuthorizedDriverRepository1.test.ts
+test/unit/repositories/UserRepository1.test.ts
+
 # Keep environment variables out of version control
 .env
 .env.local
