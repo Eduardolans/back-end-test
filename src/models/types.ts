@@ -1,6 +1,6 @@
-import { LicenseType, VehicleType, User, Vehicle } from '@prisma/client';
+import { VehicleType } from '@prisma/client';
 
-export { LicenseType, VehicleType, User, Vehicle };
+export { VehicleType };
 
 export interface CreateVehicleDTO {
   marca: string;
