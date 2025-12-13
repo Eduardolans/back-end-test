@@ -75,6 +75,19 @@ BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
 
 if [ "$HTTP_CODE" = "201" ]; then
   echo -e "${GREEN}✅ Status: 201 Created${NC}"
+
+  # Validate business model format
+  HAS_PROPIETARIO=$(echo "$BODY" | jq 'has("propietario")')
+  HAS_PROPIETARIO_ID=$(echo "$BODY" | jq 'has("propietarioId")')
+  HAS_CREATED_AT=$(echo "$BODY" | jq 'has("createdAt")')
+
+  if [ "$HAS_PROPIETARIO" = "true" ] && [ "$HAS_PROPIETARIO_ID" = "false" ] && [ "$HAS_CREATED_AT" = "false" ]; then
+    echo -e "${GREEN}✅ Business model format correct (propietario object, no internal fields)${NC}"
+  else
+    echo -e "${RED}⚠️  Warning: Response format doesn't match business model${NC}"
+    echo -e "   Has propietario: $HAS_PROPIETARIO | Has propietarioId: $HAS_PROPIETARIO_ID | Has createdAt: $HAS_CREATED_AT"
+  fi
+
   echo -e "Response: ${BODY}\n"
 else
   echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
@@ -164,6 +177,15 @@ BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
 if [ "$HTTP_CODE" = "200" ]; then
   USER_COUNT=$(echo "$BODY" | jq '. | length')
   echo -e "${GREEN}✅ Status: 200 OK${NC}"
+
+  # Validate business model format (should NOT have createdAt/updatedAt)
+  FIRST_USER_HAS_CREATED=$(echo "$BODY" | jq '.[0] | has("createdAt")')
+  if [ "$FIRST_USER_HAS_CREATED" = "false" ]; then
+    echo -e "${GREEN}✅ Business model format correct (no internal fields)${NC}"
+  else
+    echo -e "${RED}⚠️  Warning: Users have internal fields (createdAt)${NC}"
+  fi
+
   echo -e "Response: Found ${USER_COUNT} users\n"
 else
   echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
@@ -181,6 +203,18 @@ BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
 if [ "$HTTP_CODE" = "200" ]; then
   VEHICLE_COUNT=$(echo "$BODY" | jq '. | length')
   echo -e "${GREEN}✅ Status: 200 OK${NC}"
+
+  # Validate business model format
+  FIRST_HAS_PROPIETARIO=$(echo "$BODY" | jq '.[0] | has("propietario")')
+  FIRST_HAS_PROPIETARIO_ID=$(echo "$BODY" | jq '.[0] | has("propietarioId")')
+  FIRST_HAS_CREATED=$(echo "$BODY" | jq '.[0] | has("createdAt")')
+
+  if [ "$FIRST_HAS_PROPIETARIO" = "true" ] && [ "$FIRST_HAS_PROPIETARIO_ID" = "false" ] && [ "$FIRST_HAS_CREATED" = "false" ]; then
+    echo -e "${GREEN}✅ Business model format correct (propietario object, no internal fields)${NC}"
+  else
+    echo -e "${RED}⚠️  Warning: Vehicle format doesn't match business model${NC}"
+  fi
+
   echo -e "Response: Found ${VEHICLE_COUNT} vehicles\n"
 else
   echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
@@ -197,6 +231,22 @@ BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
 
 if [ "$HTTP_CODE" = "200" ]; then
   echo -e "${GREEN}✅ Status: 200 OK${NC}"
+
+  # Validate business model format (vehicles should have propietario object, no internal fields)
+  VEHICLE_COUNT=$(echo "$BODY" | jq '. | length')
+  if [ "$VEHICLE_COUNT" -gt "0" ]; then
+    FIRST_HAS_PROPIETARIO=$(echo "$BODY" | jq '.[0] | has("propietario")')
+    FIRST_HAS_PROPIETARIO_ID=$(echo "$BODY" | jq '.[0] | has("propietarioId")')
+    FIRST_HAS_CREATED=$(echo "$BODY" | jq '.[0] | has("createdAt")')
+
+    if [ "$FIRST_HAS_PROPIETARIO" = "true" ] && [ "$FIRST_HAS_PROPIETARIO_ID" = "false" ] && [ "$FIRST_HAS_CREATED" = "false" ]; then
+      echo -e "${GREEN}✅ Business model format correct (propietario object, no internal fields)${NC}"
+    else
+      echo -e "${RED}⚠️  Warning: Vehicle format doesn't match business model${NC}"
+      echo -e "   Has propietario: $FIRST_HAS_PROPIETARIO | Has propietarioId: $FIRST_HAS_PROPIETARIO_ID | Has createdAt: $FIRST_HAS_CREATED"
+    fi
+  fi
+
   echo -e "Response: ${BODY}\n"
 else
   echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
@@ -217,6 +267,18 @@ BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
 
 if [ "$HTTP_CODE" = "200" ]; then
   echo -e "${GREEN}✅ Status: 200 OK${NC}"
+
+  # Validate business model format
+  HAS_PROPIETARIO=$(echo "$BODY" | jq 'has("propietario")')
+  HAS_PROPIETARIO_ID=$(echo "$BODY" | jq 'has("propietarioId")')
+  NEW_OWNER_ID=$(echo "$BODY" | jq -r '.propietario.id')
+
+  if [ "$HAS_PROPIETARIO" = "true" ] && [ "$HAS_PROPIETARIO_ID" = "false" ] && [ "$NEW_OWNER_ID" = "$USER5_ID" ]; then
+    echo -e "${GREEN}✅ Business model correct & ownership transferred to User5${NC}"
+  else
+    echo -e "${RED}⚠️  Warning: Response format issue${NC}"
+  fi
+
   echo -e "Response: ${BODY}\n"
 else
   echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
@@ -257,6 +319,19 @@ BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
 
 if [ "$HTTP_CODE" = "201" ]; then
   echo -e "${GREEN}✅ Status: 201 Created${NC}"
+
+  # Validate business model format (should have 'driver' object, not 'userId')
+  HAS_DRIVER=$(echo "$BODY" | jq 'has("driver")')
+  HAS_USER_ID=$(echo "$BODY" | jq 'has("userId")')
+  HAS_CREATED_AT=$(echo "$BODY" | jq 'has("createdAt")')
+
+  if [ "$HAS_DRIVER" = "true" ] && [ "$HAS_USER_ID" = "false" ] && [ "$HAS_CREATED_AT" = "false" ]; then
+    echo -e "${GREEN}✅ Business model format correct (driver object, no internal fields)${NC}"
+  else
+    echo -e "${RED}⚠️  Warning: Response format doesn't match business model${NC}"
+    echo -e "   Has driver: $HAS_DRIVER | Has userId: $HAS_USER_ID | Has createdAt: $HAS_CREATED_AT"
+  fi
+
   echo -e "Response: ${BODY}\n"
 else
   echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
@@ -274,6 +349,21 @@ BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
 if [ "$HTTP_CODE" = "200" ]; then
   HISTORY_COUNT=$(echo "$BODY" | jq '. | length')
   echo -e "${GREEN}✅ Status: 200 OK${NC}"
+
+  # Validate business model format (should have 'owner' object, not 'userId')
+  if [ "$HISTORY_COUNT" -gt "0" ]; then
+    FIRST_HAS_OWNER=$(echo "$BODY" | jq '.[0] | has("owner")')
+    FIRST_HAS_USER_ID=$(echo "$BODY" | jq '.[0] | has("userId")')
+    FIRST_HAS_CREATED=$(echo "$BODY" | jq '.[0] | has("createdAt")')
+
+    if [ "$FIRST_HAS_OWNER" = "true" ] && [ "$FIRST_HAS_USER_ID" = "false" ] && [ "$FIRST_HAS_CREATED" = "false" ]; then
+      echo -e "${GREEN}✅ Business model format correct (owner object, no internal fields)${NC}"
+    else
+      echo -e "${RED}⚠️  Warning: History format doesn't match business model${NC}"
+      echo -e "   Has owner: $FIRST_HAS_OWNER | Has userId: $FIRST_HAS_USER_ID | Has createdAt: $FIRST_HAS_CREATED"
+    fi
+  fi
+
   echo -e "Response: Found ${HISTORY_COUNT} ownership records\n"
 else
   echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
@@ -294,6 +384,21 @@ if [ "$HTTP_CODE" = "200" ]; then
   TOTAL=$(echo "$BODY" | jq '.total')
   TOTAL_PAGES=$(echo "$BODY" | jq '.totalPages')
   echo -e "${GREEN}✅ Status: 200 OK${NC}"
+
+  # Validate business model format (users should not have internal fields)
+  DATA_LENGTH=$(echo "$BODY" | jq '.data | length')
+  if [ "$DATA_LENGTH" -gt "0" ]; then
+    FIRST_HAS_CREATED=$(echo "$BODY" | jq '.data[0] | has("createdAt")')
+    FIRST_HAS_UPDATED=$(echo "$BODY" | jq '.data[0] | has("updatedAt")')
+
+    if [ "$FIRST_HAS_CREATED" = "false" ] && [ "$FIRST_HAS_UPDATED" = "false" ]; then
+      echo -e "${GREEN}✅ Business model format correct (no internal fields)${NC}"
+    else
+      echo -e "${RED}⚠️  Warning: User format includes internal fields${NC}"
+      echo -e "   Has createdAt: $FIRST_HAS_CREATED | Has updatedAt: $FIRST_HAS_UPDATED"
+    fi
+  fi
+
   echo -e "Pagination: Page ${PAGE}/${TOTAL_PAGES}, Limit: ${LIMIT}, Total: ${TOTAL}\n"
 else
   echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
@@ -314,6 +419,22 @@ if [ "$HTTP_CODE" = "200" ]; then
   TOTAL=$(echo "$BODY" | jq '.total')
   TOTAL_PAGES=$(echo "$BODY" | jq '.totalPages')
   echo -e "${GREEN}✅ Status: 200 OK${NC}"
+
+  # Validate business model format (vehicles should have propietario object, no internal fields)
+  DATA_LENGTH=$(echo "$BODY" | jq '.data | length')
+  if [ "$DATA_LENGTH" -gt "0" ]; then
+    FIRST_HAS_PROPIETARIO=$(echo "$BODY" | jq '.data[0] | has("propietario")')
+    FIRST_HAS_PROPIETARIO_ID=$(echo "$BODY" | jq '.data[0] | has("propietarioId")')
+    FIRST_HAS_CREATED=$(echo "$BODY" | jq '.data[0] | has("createdAt")')
+
+    if [ "$FIRST_HAS_PROPIETARIO" = "true" ] && [ "$FIRST_HAS_PROPIETARIO_ID" = "false" ] && [ "$FIRST_HAS_CREATED" = "false" ]; then
+      echo -e "${GREEN}✅ Business model format correct (propietario object, no internal fields)${NC}"
+    else
+      echo -e "${RED}⚠️  Warning: Vehicle format doesn't match business model${NC}"
+      echo -e "   Has propietario: $FIRST_HAS_PROPIETARIO | Has propietarioId: $FIRST_HAS_PROPIETARIO_ID | Has createdAt: $FIRST_HAS_CREATED"
+    fi
+  fi
+
   echo -e "Pagination: Page ${PAGE}/${TOTAL_PAGES}, Limit: ${LIMIT}, Total: ${TOTAL}\n"
 else
   echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"

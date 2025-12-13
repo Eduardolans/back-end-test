@@ -139,6 +139,12 @@ This will create:
 npm run test:api
 ```
 
+**What the automated tests validate:**
+- HTTP status codes (201 Created, 200 OK, 400 Bad Request, 404 Not Found, 409 Conflict)
+- Business model response format (presence of nested objects like `propietario`, `driver`, `owner`)
+- Absence of internal fields (`createdAt`, `updatedAt`, `propietarioId`, `userId`)
+- Correct data transformations and relationships
+
 **Important:** If tests fail due to data state (e.g., vehicle already transferred), reseed the database first:
 
 ```bash
