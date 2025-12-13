@@ -32,16 +32,13 @@ export class VehicleService {
       data.tipo
     );
 
-    const vehicleWithOwner = await this.vehicleRepository.createWithOwner(data);
+    const vehicle = await this.vehicleRepository.create(data);
     await this.ownershipHistoryRepository.create(
-      vehicleWithOwner.id,
+      vehicle.id,
       data.propietario_id
     );
 
-    return EntityMapper.toVehicleBusiness(
-      vehicleWithOwner,
-      vehicleWithOwner.propietario
-    );
+    return EntityMapper.toVehicleBusiness(vehicle, vehicle.propietario);
   }
 
   public async transferOwnership(
@@ -62,7 +59,7 @@ export class VehicleService {
       vehicle.propietarioId
     );
 
-    const updatedVehicle = await this.vehicleRepository.updateOwnerAndGet(
+    const updatedVehicle = await this.vehicleRepository.updateOwner(
       vehicleId,
       newOwnerId
     );
@@ -77,14 +74,14 @@ export class VehicleService {
 
   public async getVehiclesByOwner(ownerId: string): Promise<VehicleBusiness[]> {
     await this.vehicleValidator.validateOwnerExists(ownerId);
-    const vehicles = await this.vehicleRepository.findByOwnerWithOwner(ownerId);
+    const vehicles = await this.vehicleRepository.findByOwner(ownerId);
     return vehicles.map((v) =>
       EntityMapper.toVehicleBusiness(v, v.propietario)
     );
   }
 
   public async getAllVehicles(): Promise<VehicleBusiness[]> {
-    const vehicles = await this.vehicleRepository.findAllWithOwner();
+    const vehicles = await this.vehicleRepository.findAll();
     return vehicles.map((v) =>
       EntityMapper.toVehicleBusiness(v, v.propietario)
     );
@@ -93,8 +90,7 @@ export class VehicleService {
   public async getAllVehiclesPaginated(
     options: PaginationOptions
   ): Promise<PaginatedResult<VehicleBusiness>> {
-    const result =
-      await this.vehicleRepository.findAllPaginatedWithOwner(options);
+    const result = await this.vehicleRepository.findAllPaginated(options);
     return {
       ...result,
       data: result.data.map((v) =>
@@ -113,10 +109,7 @@ export class VehicleService {
     await this.vehicleValidator.validateOwnerLicense(userId, vehicle.tipo);
 
     const authorizedDriver =
-      await this.authorizedDriverRepository.addDriverWithUser(
-        vehicleId,
-        userId
-      );
+      await this.authorizedDriverRepository.addDriver(vehicleId, userId);
 
     return EntityMapper.toAuthorizedDriverBusiness(
       authorizedDriver,
@@ -137,7 +130,7 @@ export class VehicleService {
   ): Promise<OwnershipHistoryBusiness[]> {
     await this.vehicleValidator.validateVehicleExists(vehicleId);
     const history =
-      await this.ownershipHistoryRepository.findByVehicleWithUser(vehicleId);
+      await this.ownershipHistoryRepository.findByVehicle(vehicleId);
     return history.map((h) =>
       EntityMapper.toOwnershipHistoryBusiness(h, h.user)
     );

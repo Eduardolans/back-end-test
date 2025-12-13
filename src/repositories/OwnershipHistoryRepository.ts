@@ -1,7 +1,7 @@
 import { OwnershipHistory, User } from '@prisma/client';
 import { getPrismaClient } from '../utils/prisma';
 
-export type OwnershipHistoryWithUser = OwnershipHistory & {
+export type OwnershipHistoryData = OwnershipHistory & {
   user: User;
 };
 
@@ -21,16 +21,9 @@ export class OwnershipHistoryRepository {
     });
   }
 
-  public async findByVehicle(vehicleId: string): Promise<OwnershipHistory[]> {
-    return await this.prisma.ownershipHistory.findMany({
-      where: { vehicleId },
-      orderBy: { fechaInicio: 'desc' },
-    });
-  }
-
-  public async findByVehicleWithUser(
+  public async findByVehicle(
     vehicleId: string
-  ): Promise<OwnershipHistoryWithUser[]> {
+  ): Promise<OwnershipHistoryData[]> {
     return await this.prisma.ownershipHistory.findMany({
       where: { vehicleId },
       orderBy: { fechaInicio: 'desc' },

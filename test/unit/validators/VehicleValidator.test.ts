@@ -60,6 +60,9 @@ describe('VehicleValidator', () => {
 
   describe('validateMatriculaUnique', () => {
     it('should throw DuplicityError when matricula already exists', async () => {
+      const futureDate = new Date();
+      futureDate.setFullYear(futureDate.getFullYear() + 1);
+
       vehicleRepository.findByMatricula = () =>
         Promise.resolve({
           id: 'vehicle-123',
@@ -70,6 +73,15 @@ describe('VehicleValidator', () => {
           propietarioId: 'user-123',
           createdAt: new Date(),
           updatedAt: new Date(),
+          propietario: {
+            id: 'user-123',
+            nombre: 'Owner',
+            email: 'owner@example.com',
+            tipoPermiso: LicenseType.B,
+            permisoValidoHasta: futureDate,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
         });
 
       try {
@@ -102,6 +114,9 @@ describe('VehicleValidator', () => {
     });
 
     it('should return vehicle when it exists', async () => {
+      const futureDate = new Date();
+      futureDate.setFullYear(futureDate.getFullYear() + 1);
+
       const mockVehicle = {
         id: 'vehicle-123',
         marca: 'Toyota',
@@ -111,6 +126,15 @@ describe('VehicleValidator', () => {
         propietarioId: 'user-123',
         createdAt: new Date(),
         updatedAt: new Date(),
+        propietario: {
+          id: 'user-123',
+          nombre: 'Owner',
+          email: 'owner@example.com',
+          tipoPermiso: LicenseType.B,
+          permisoValidoHasta: futureDate,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
       };
 
       vehicleRepository.findById = () => Promise.resolve(mockVehicle);

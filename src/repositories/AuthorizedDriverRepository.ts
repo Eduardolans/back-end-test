@@ -1,7 +1,7 @@
 import { AuthorizedDriver, User } from '@prisma/client';
 import { getPrismaClient } from '../utils/prisma';
 
-export type AuthorizedDriverWithUser = AuthorizedDriver & {
+export type AuthorizedDriverData = AuthorizedDriver & {
   user: User;
 };
 
@@ -11,19 +11,7 @@ export class AuthorizedDriverRepository {
   public async addDriver(
     vehicleId: string,
     userId: string
-  ): Promise<AuthorizedDriver> {
-    return await this.prisma.authorizedDriver.create({
-      data: {
-        vehicleId,
-        userId,
-      },
-    });
-  }
-
-  public async addDriverWithUser(
-    vehicleId: string,
-    userId: string
-  ): Promise<AuthorizedDriverWithUser> {
+  ): Promise<AuthorizedDriverData> {
     return await this.prisma.authorizedDriver.create({
       data: {
         vehicleId,
@@ -33,9 +21,12 @@ export class AuthorizedDriverRepository {
     });
   }
 
-  public async findByVehicle(vehicleId: string): Promise<AuthorizedDriver[]> {
+  public async findByVehicle(
+    vehicleId: string
+  ): Promise<AuthorizedDriverData[]> {
     return await this.prisma.authorizedDriver.findMany({
       where: { vehicleId },
+      include: { user: true },
     });
   }
 

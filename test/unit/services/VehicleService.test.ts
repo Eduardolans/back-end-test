@@ -56,7 +56,7 @@ describe('VehicleService', () => {
 
       vehicleRepository.findByMatricula = () => Promise.resolve(null);
 
-      vehicleRepository.createWithOwner = (data) =>
+      vehicleRepository.create = (data) =>
         Promise.resolve({
           id: 'vehicle-123',
           marca: data.marca,
@@ -142,7 +142,7 @@ describe('VehicleService', () => {
         },
       ];
 
-      vehicleRepository.findAllWithOwner = () => Promise.resolve(mockVehicles);
+      vehicleRepository.findAll = () => Promise.resolve(mockVehicles);
 
       const result = await service.getAllVehicles();
 
@@ -172,6 +172,15 @@ describe('VehicleService', () => {
           propietarioId: 'owner-id',
           createdAt: new Date(),
           updatedAt: new Date(),
+          propietario: {
+            id: 'owner-id',
+            nombre: 'Vehicle Owner',
+            email: 'owner@example.com',
+            tipoPermiso: LicenseType.B,
+            permisoValidoHasta: futureDate,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
         });
 
       const mockDriver = {
@@ -186,7 +195,7 @@ describe('VehicleService', () => {
 
       userRepository.findById = () => Promise.resolve(mockDriver);
 
-      authorizedDriverRepository.addDriverWithUser = () =>
+      authorizedDriverRepository.addDriver = () =>
         Promise.resolve({
           id: 'auth-123',
           vehicleId,
