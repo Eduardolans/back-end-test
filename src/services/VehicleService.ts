@@ -8,10 +8,11 @@ import {
   PaginatedResult,
 } from '../models/types';
 import {
-  AuthorizedDriver,
-  OwnershipHistory,
-  Vehicle,
-} from '../models/dataModels';
+  VehicleBusiness,
+  AuthorizedDriverBusiness,
+  OwnershipHistoryBusiness,
+} from '../models/businessModels';
+import { EntityMapper } from '../mappers/EntityMapper';
 
 export class VehicleService {
   constructor(
@@ -21,7 +22,9 @@ export class VehicleService {
     private vehicleValidator: VehicleValidator
   ) {}
 
-  public async registerVehicle(data: CreateVehicleDTO): Promise<Vehicle> {
+  public async registerVehicle(
+    data: CreateVehicleDTO
+  ): Promise<VehicleBusiness> {
     await this.vehicleValidator.validateOwnerExists(data.propietario_id);
     await this.vehicleValidator.validateMatriculaUnique(data.matricula);
     await this.vehicleValidator.validateOwnerLicense(
@@ -29,19 +32,23 @@ export class VehicleService {
       data.tipo
     );
 
-    const vehicle = await this.vehicleRepository.create(data);
+    const vehicleWithOwner =
+      await this.vehicleRepository.createWithOwner(data);
     await this.ownershipHistoryRepository.create(
-      vehicle.id,
+      vehicleWithOwner.id,
       data.propietario_id
     );
 
-    return vehicle;
+    return EntityMapper.toVehicleBusiness(
+      vehicleWithOwner,
+      vehicleWithOwner.propietario
+    );
   }
 
   public async transferOwnership(
     vehicleId: string,
     newOwnerId: string
-  ): Promise<Vehicle> {
+  ): Promise<VehicleBusiness> {
     const vehicle =
       await this.vehicleValidator.validateVehicleExists(vehicleId);
     await this.vehicleValidator.validateOwnerExists(newOwnerId);
@@ -56,41 +63,62 @@ export class VehicleService {
       vehicle.propietarioId
     );
 
-    const updatedVehicle = await this.vehicleRepository.updateOwner(
+    const updatedVehicle = await this.vehicleRepository.updateOwnerAndGet(
       vehicleId,
       newOwnerId
     );
 
     await this.ownershipHistoryRepository.create(vehicleId, newOwnerId);
 
-    return updatedVehicle;
+    return EntityMapper.toVehicleBusiness(
+      updatedVehicle,
+      updatedVehicle.propietario
+    );
   }
 
-  public async getVehiclesByOwner(ownerId: string): Promise<Vehicle[]> {
+  public async getVehiclesByOwner(
+    ownerId: string
+  ): Promise<VehicleBusiness[]> {
     await this.vehicleValidator.validateOwnerExists(ownerId);
-    return await this.vehicleRepository.findByOwner(ownerId);
+    const vehicles =
+      await this.vehicleRepository.findByOwnerWithOwner(ownerId);
+    return vehicles.map((v) => EntityMapper.toVehicleBusiness(v, v.propietario));
   }
 
-  public async getAllVehicles(): Promise<Vehicle[]> {
-    return await this.vehicleRepository.findAll();
+  public async getAllVehicles(): Promise<VehicleBusiness[]> {
+    const vehicles = await this.vehicleRepository.findAllWithOwner();
+    return vehicles.map((v) => EntityMapper.toVehicleBusiness(v, v.propietario));
   }
 
   public async getAllVehiclesPaginated(
     options: PaginationOptions
-  ): Promise<PaginatedResult<Vehicle>> {
-    return await this.vehicleRepository.findAllPaginated(options);
+  ): Promise<PaginatedResult<VehicleBusiness>> {
+    const result =
+      await this.vehicleRepository.findAllPaginatedWithOwner(options);
+    return {
+      ...result,
+      data: result.data.map((v) =>
+        EntityMapper.toVehicleBusiness(v, v.propietario)
+      ),
+    };
   }
 
   public async addAuthorizedDriver(
     vehicleId: string,
     userId: string
-  ): Promise<AuthorizedDriver> {
+  ): Promise<AuthorizedDriverBusiness> {
     const vehicle =
       await this.vehicleValidator.validateVehicleExists(vehicleId);
     await this.vehicleValidator.validateOwnerExists(userId);
     await this.vehicleValidator.validateOwnerLicense(userId, vehicle.tipo);
 
-    return await this.authorizedDriverRepository.addDriver(vehicleId, userId);
+    const authorizedDriver =
+      await this.authorizedDriverRepository.addDriverWithUser(vehicleId, userId);
+
+    return EntityMapper.toAuthorizedDriverBusiness(
+      authorizedDriver,
+      authorizedDriver.user
+    );
   }
 
   public async removeAuthorizedDriver(
@@ -103,8 +131,10 @@ export class VehicleService {
 
   public async getOwnershipHistory(
     vehicleId: string
-  ): Promise<OwnershipHistory[]> {
+  ): Promise<OwnershipHistoryBusiness[]> {
     await this.vehicleValidator.validateVehicleExists(vehicleId);
-    return await this.ownershipHistoryRepository.findByVehicle(vehicleId);
+    const history =
+      await this.ownershipHistoryRepository.findByVehicleWithUser(vehicleId);
+    return history.map((h) => EntityMapper.toOwnershipHistoryBusiness(h, h.user));
   }
 }

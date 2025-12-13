@@ -1,10 +1,14 @@
-import { PrismaClient, Vehicle } from '@prisma/client';
+import { PrismaClient, Vehicle, User } from '@prisma/client';
 import { getPrismaClient } from '../utils/prisma';
 import {
   CreateVehicleDTO,
   PaginationOptions,
   PaginatedResult,
 } from '../models/types';
+
+export type VehicleWithOwner = Vehicle & {
+  propietario: User;
+};
 
 export class VehicleRepository {
   private prisma: PrismaClient;
@@ -74,5 +78,78 @@ export class VehicleRepository {
       limit: options.limit,
       totalPages: Math.ceil(total / options.limit),
     };
+  }
+
+  public async findByIdWithOwner(
+    id: string
+  ): Promise<VehicleWithOwner | null> {
+    return await this.prisma.vehicle.findUnique({
+      where: { id },
+      include: { propietario: true },
+    });
+  }
+
+  public async createWithOwner(
+    data: CreateVehicleDTO
+  ): Promise<VehicleWithOwner> {
+    return await this.prisma.vehicle.create({
+      data: {
+        marca: data.marca,
+        modelo: data.modelo,
+        matricula: data.matricula,
+        tipo: data.tipo,
+        propietarioId: data.propietario_id,
+      },
+      include: { propietario: true },
+    });
+  }
+
+  public async updateOwnerAndGet(
+    id: string,
+    newOwnerId: string
+  ): Promise<VehicleWithOwner> {
+    return await this.prisma.vehicle.update({
+      where: { id },
+      data: { propietarioId: newOwnerId },
+      include: { propietario: true },
+    });
+  }
+
+  public async findAllWithOwner(): Promise<VehicleWithOwner[]> {
+    return await this.prisma.vehicle.findMany({
+      include: { propietario: true },
+    });
+  }
+
+  public async findAllPaginatedWithOwner(
+    options: PaginationOptions
+  ): Promise<PaginatedResult<VehicleWithOwner>> {
+    const skip = (options.page - 1) * options.limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.vehicle.findMany({
+        skip,
+        take: options.limit,
+        include: { propietario: true },
+      }),
+      this.prisma.vehicle.count(),
+    ]);
+
+    return {
+      data,
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit),
+    };
+  }
+
+  public async findByOwnerWithOwner(
+    propietarioId: string
+  ): Promise<VehicleWithOwner[]> {
+    return await this.prisma.vehicle.findMany({
+      where: { propietarioId },
+      include: { propietario: true },
+    });
   }
 }
