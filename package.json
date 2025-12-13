@@ -4,7 +4,7 @@
   "description": "Vehicle registration system with license validation",
   "main": "dist/index.js",
   "scripts": {
-    "help": "echo '\nAvailable scripts:\n  setup - Install dependencies and prepare environment\n  build - Build TypeScript application\n  dev - Run in development mode with hot reload\n  start - Start production build\n  seed - Populate database with test data\n  test:api - Run automated API endpoint tests\n  type-check - Check TypeScript types\n  format - Format code with Prettier\n  format:check - Check code formatting\n  lint - Run ESLint\n  lint:fix - Fix ESLint issues\n  test - Run all tests (unit + integration)\n  test:unit - Run unit tests only\n  test:integration - Run integration tests only\n  test:watch - Run tests in watch mode\n  test:coverage - Run tests with coverage\n  validate - Run all checks (type-check, lint, format:check, test)\n  prisma:migrate - Run Prisma migrations\n  prisma:generate - Generate Prisma client\n  prisma:studio - Open Prisma Studio (GUI)\n\nQuick Start:\n  1. npm run dev        # Start server\n  2. npm run seed       # Add test data\n  3. npm run test:api   # Test endpoints\n\nSee API_TESTING.md for manual testing guide.\n'",
+    "help": "echo '\nAvailable scripts:\n  setup - Install dependencies and prepare environment\n  build - Build TypeScript application\n  dev - Run in development mode with hot reload\n  start - Start production build\n  seed - Populate database with test data\n  test:api - Run automated API endpoint tests\n  type-check - Check TypeScript types\n  format - Format code with Prettier\n  format:check - Check code formatting\n  lint - Run ESLint\n  lint:fix - Fix ESLint issues\n  test - Run all tests (unit + integration)\n  test:unit - Run unit tests only\n  test:integration - Run integration tests only\n  test:watch - Run tests in watch mode\n  test:coverage - Run tests with coverage\n  validate - Run all checks (type-check, lint, format:check, test)\n  prisma:migrate - Run Prisma migrations\n  prisma:generate - Generate Prisma client\n  prisma:studio - Open Prisma Studio (GUI)\n  docker:up - Start Docker containers\n  docker:up:detach - Start Docker containers in detached mode\n  docker:down - Stop Docker containers\n  docker:status - Show Docker container status\n  docker:logs - Follow Docker container logs\n  docker:clean - Stop containers and remove volumes\n\nQuick Start:\n  1. npm run docker:up  # Start database\n  2. npm run dev        # Start server\n  3. npm run seed       # Add test data\n  4. npm run test:api   # Test endpoints\n\nSee API_TESTING.md for manual testing guide.\n'",
     "setup": "npm install && npm run prisma:generate",
     "build": "tsc",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
@@ -24,7 +24,13 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts",
+    "docker:up": "docker-compose up",
+    "docker:up:detach": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:status": "docker-compose ps",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

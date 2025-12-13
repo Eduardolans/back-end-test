@@ -37,9 +37,7 @@ export class VehicleRepository {
     });
   }
 
-  public async findByMatricula(
-    matricula: string
-  ): Promise<VehicleData | null> {
+  public async findByMatricula(matricula: string): Promise<VehicleData | null> {
     return await this.prisma.vehicle.findUnique({
       where: { matricula },
       include: { propietario: true },

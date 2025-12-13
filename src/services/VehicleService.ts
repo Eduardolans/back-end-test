@@ -108,8 +108,10 @@ export class VehicleService {
     await this.vehicleValidator.validateOwnerExists(userId);
     await this.vehicleValidator.validateOwnerLicense(userId, vehicle.tipo);
 
-    const authorizedDriver =
-      await this.authorizedDriverRepository.addDriver(vehicleId, userId);
+    const authorizedDriver = await this.authorizedDriverRepository.addDriver(
+      vehicleId,
+      userId
+    );
 
     return EntityMapper.toAuthorizedDriverBusiness(
       authorizedDriver,

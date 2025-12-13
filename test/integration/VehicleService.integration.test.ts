@@ -70,13 +70,23 @@ describe('VehicleService Integration Tests', () => {
 
       expect(result).to.have.property('id');
       expect(result.marca).to.equal('Toyota');
+      expect(result.modelo).to.equal('Corolla');
+      expect(result.matricula).to.equal('INT001');
+      expect(result.tipo).to.equal(VehicleType.coche);
       expect(result.propietario).to.exist;
       expect(result.propietario.id).to.equal(testUserId);
+      expect(result.propietario.nombre).to.equal('Test User');
+      expect(result.propietario.email).to.equal('test@integration.com');
+      expect(result.propietario.tipoPermiso).to.equal(LicenseType.B);
       expect(result).to.not.have.property('propietarioId');
+      expect(result).to.not.have.property('createdAt');
+      expect(result).to.not.have.property('updatedAt');
 
       const vehicleFromDb = await vehicleRepository.findById(result.id);
       expect(vehicleFromDb).to.not.be.null;
       expect(vehicleFromDb?.matricula).to.equal('INT001');
+      expect(vehicleFromDb?.marca).to.equal('Toyota');
+      expect(vehicleFromDb?.modelo).to.equal('Corolla');
     });
   });
 
@@ -108,13 +118,20 @@ describe('VehicleService Integration Tests', () => {
         newOwner.id
       );
 
+      expect(result.id).to.equal(vehicle.id);
+      expect(result.marca).to.equal('Honda');
+      expect(result.modelo).to.equal('Civic');
+      expect(result.matricula).to.equal('INT002');
       expect(result.propietario).to.exist;
       expect(result.propietario.id).to.equal(newOwner.id);
       expect(result.propietario.nombre).to.equal('New Owner');
+      expect(result.propietario.email).to.equal('newowner@integration.com');
       expect(result).to.not.have.property('propietarioId');
+      expect(result).to.not.have.property('createdAt');
 
       const vehicleFromDb = await vehicleRepository.findById(vehicle.id);
       expect(vehicleFromDb?.propietarioId).to.equal(newOwner.id);
+      expect(vehicleFromDb?.propietario.nombre).to.equal('New Owner');
     });
   });
 
@@ -150,13 +167,17 @@ describe('VehicleService Integration Tests', () => {
       expect(result.driver).to.exist;
       expect(result.driver.id).to.equal(driver.id);
       expect(result.driver.nombre).to.equal('Authorized Driver');
+      expect(result.driver.email).to.equal('driver@integration.com');
+      expect(result.driver.tipoPermiso).to.equal(LicenseType.B);
       expect(result).to.not.have.property('userId');
+      expect(result).to.not.have.property('createdAt');
 
       const authDriversFromDb = await authorizedDriverRepository.findByVehicle(
         vehicle.id
       );
       expect(authDriversFromDb).to.have.lengthOf(1);
       expect(authDriversFromDb[0].userId).to.equal(driver.id);
+      expect(authDriversFromDb[0].user.nombre).to.equal('Authorized Driver');
     });
   });
 });
