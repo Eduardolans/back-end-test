@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { LicenseValidator } from '../../../src/services/LicenseValidator';
-import { LicenseType, VehicleType } from '../../../src/models/types';
+import { LicenseType, VehicleType } from '../../../src/models/dataModels';
 
 describe('LicenseValidator', () => {
   let validator: LicenseValidator;

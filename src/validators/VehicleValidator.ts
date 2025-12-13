@@ -1,4 +1,3 @@
-import { Vehicle, VehicleType } from '@prisma/client';
 import { UserRepository } from '../repositories/UserRepository';
 import { VehicleRepository } from '../repositories/VehicleRepository';
 import { LicenseValidator } from '../services/LicenseValidator';
@@ -7,6 +6,7 @@ import {
   ValidationError,
   DuplicityError,
 } from '../errors/DomainErrors';
+import { Vehicle, VehicleType } from '../models/dataModels';
 
 export class VehicleValidator {
   constructor(

@@ -7,7 +7,7 @@ import {
   NotFoundError,
   DuplicityError,
 } from '../../../src/errors/DomainErrors';
-import { LicenseType, VehicleType } from '../../../src/models/types';
+import { LicenseType, VehicleType } from '../../../src/models/dataModels';
 
 describe('VehicleValidator', () => {
   let validator: VehicleValidator;

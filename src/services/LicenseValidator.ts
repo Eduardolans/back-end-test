@@ -1,4 +1,4 @@
-import { LicenseType, VehicleType } from '../models/types';
+import { LicenseType, VehicleType } from '../models/dataModels';
 
 export class LicenseValidator {
   private readonly licenseVehicleMap: Map<LicenseType, VehicleType> = new Map([

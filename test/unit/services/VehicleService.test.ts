@@ -6,7 +6,7 @@ import { AuthorizedDriverRepository } from '../../../src/repositories/Authorized
 import { OwnershipHistoryRepository } from '../../../src/repositories/OwnershipHistoryRepository';
 import { LicenseValidator } from '../../../src/services/LicenseValidator';
 import { VehicleValidator } from '../../../src/validators/VehicleValidator';
-import { LicenseType, VehicleType } from '../../../src/models/types';
+import { LicenseType, VehicleType } from '../../../src/models/dataModels';
 
 describe('VehicleService', () => {
   let service: VehicleService;

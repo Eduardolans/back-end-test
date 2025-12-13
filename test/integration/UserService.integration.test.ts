@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { UserService } from '../../src/services/UserService';
 import { UserRepository } from '../../src/repositories/UserRepository';
 import { getPrismaClient } from '../../src/utils/prisma';
-import { LicenseType } from '../../src/models/types';
+import { LicenseType } from '../../src/models/dataModels';
 
 describe('UserService Integration Tests', () => {
   let userService: UserService;

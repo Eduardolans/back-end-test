@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { UserService } from '../../../src/services/UserService';
 import { UserRepository } from '../../../src/repositories/UserRepository';
-import { LicenseType } from '../../../src/models/types';
+import { LicenseType } from '../../../src/models/dataModels';
 import { NotFoundError } from '../../../src/errors/DomainErrors';
 
 describe('UserService', () => {

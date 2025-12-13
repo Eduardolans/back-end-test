@@ -7,7 +7,7 @@ import { OwnershipHistoryRepository } from '../../src/repositories/OwnershipHist
 import { LicenseValidator } from '../../src/services/LicenseValidator';
 import { VehicleValidator } from '../../src/validators/VehicleValidator';
 import { getPrismaClient } from '../../src/utils/prisma';
-import { LicenseType, VehicleType } from '../../src/models/types';
+import { LicenseType, VehicleType } from '../../src/models/dataModels';
 
 describe('VehicleService Integration Tests', () => {
   let vehicleService: VehicleService;

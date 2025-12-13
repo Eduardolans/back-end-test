@@ -1,4 +1,3 @@
-import { AuthorizedDriver, OwnershipHistory, Vehicle } from '@prisma/client';
 import { VehicleRepository } from '../repositories/VehicleRepository';
 import { AuthorizedDriverRepository } from '../repositories/AuthorizedDriverRepository';
 import { OwnershipHistoryRepository } from '../repositories/OwnershipHistoryRepository';
@@ -8,6 +7,11 @@ import {
   PaginationOptions,
   PaginatedResult,
 } from '../models/types';
+import {
+  AuthorizedDriver,
+  OwnershipHistory,
+  Vehicle,
+} from '../models/dataModels';
 
 export class VehicleService {
   constructor(

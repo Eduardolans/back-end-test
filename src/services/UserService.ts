@@ -1,6 +1,6 @@
-import { User } from '@prisma/client';
 import { UserRepository } from '../repositories/UserRepository';
 import { PaginationOptions, PaginatedResult } from '../models/types';
+import { User } from '../models/dataModels';
 import { NotFoundError } from '../errors/DomainErrors';
 
 export class UserService {
