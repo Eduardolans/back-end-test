@@ -15,7 +15,7 @@
     "lint": "eslint src test prisma --ext .ts",
     "lint:fix": "eslint src test prisma --ext .ts --fix",
     "test": "mocha -r ts-node/register 'test/**/*.test.ts' --exit",
-    "test:api": "chmod +x scripts/test-api.sh && ./scripts/test-api.sh",
+    "test:api": "chmod +x test/scripts/test-api.sh && ./test/scripts/test-api.sh",
     "test:integration": "mocha -r ts-node/register 'test/integration/**/*.test.ts' --exit",
     "test:unit": "mocha -r ts-node/register 'test/unit/**/*.test.ts' --exit",
     "test:watch": "mocha -r ts-node/register 'test/**/*.test.ts' --watch --watch-files src,test",

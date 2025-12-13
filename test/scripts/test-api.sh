@@ -33,7 +33,7 @@ echo -e "${BLUE}================================${NC}\n"
 
 # Get user IDs from database using Prisma (reads credentials from .env)
 echo -e "${YELLOW}📊 Getting test user IDs from database...${NC}"
-USER_DATA=$(ts-node scripts/get-test-users.ts 2>/dev/null)
+USER_DATA=$(ts-node test/scripts/get-test-users.ts 2>/dev/null)
 
 if [ -z "$USER_DATA" ]; then
   echo -e "${RED}❌ Could not fetch users from database. Run 'npm run seed' first!${NC}\n"
