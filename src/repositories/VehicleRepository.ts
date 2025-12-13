@@ -80,9 +80,7 @@ export class VehicleRepository {
     };
   }
 
-  public async findByIdWithOwner(
-    id: string
-  ): Promise<VehicleWithOwner | null> {
+  public async findByIdWithOwner(id: string): Promise<VehicleWithOwner | null> {
     return await this.prisma.vehicle.findUnique({
       where: { id },
       include: { propietario: true },

@@ -70,7 +70,9 @@ describe('VehicleService Integration Tests', () => {
 
       expect(result).to.have.property('id');
       expect(result.marca).to.equal('Toyota');
-      expect(result.propietarioId).to.equal(testUserId);
+      expect(result.propietario).to.exist;
+      expect(result.propietario.id).to.equal(testUserId);
+      expect(result).to.not.have.property('propietarioId');
 
       const vehicleFromDb = await vehicleRepository.findById(result.id);
       expect(vehicleFromDb).to.not.be.null;
@@ -106,7 +108,10 @@ describe('VehicleService Integration Tests', () => {
         newOwner.id
       );
 
-      expect(result.propietarioId).to.equal(newOwner.id);
+      expect(result.propietario).to.exist;
+      expect(result.propietario.id).to.equal(newOwner.id);
+      expect(result.propietario.nombre).to.equal('New Owner');
+      expect(result).to.not.have.property('propietarioId');
 
       const vehicleFromDb = await vehicleRepository.findById(vehicle.id);
       expect(vehicleFromDb?.propietarioId).to.equal(newOwner.id);
@@ -142,7 +147,10 @@ describe('VehicleService Integration Tests', () => {
       );
 
       expect(result.vehicleId).to.equal(vehicle.id);
-      expect(result.userId).to.equal(driver.id);
+      expect(result.driver).to.exist;
+      expect(result.driver.id).to.equal(driver.id);
+      expect(result.driver.nombre).to.equal('Authorized Driver');
+      expect(result).to.not.have.property('userId');
 
       const authDriversFromDb = await authorizedDriverRepository.findByVehicle(
         vehicle.id

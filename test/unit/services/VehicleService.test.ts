@@ -42,20 +42,21 @@ describe('VehicleService', () => {
       const futureDate = new Date();
       futureDate.setFullYear(futureDate.getFullYear() + 1);
 
-      userRepository.findById = () =>
-        Promise.resolve({
-          id: ownerId,
-          nombre: 'Test User',
-          email: 'test@example.com',
-          tipoPermiso: LicenseType.B,
-          permisoValidoHasta: futureDate,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+      const mockOwner = {
+        id: ownerId,
+        nombre: 'Test User',
+        email: 'test@example.com',
+        tipoPermiso: LicenseType.B,
+        permisoValidoHasta: futureDate,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      userRepository.findById = () => Promise.resolve(mockOwner);
 
       vehicleRepository.findByMatricula = () => Promise.resolve(null);
 
-      vehicleRepository.create = (data) =>
+      vehicleRepository.createWithOwner = (data) =>
         Promise.resolve({
           id: 'vehicle-123',
           marca: data.marca,
@@ -65,6 +66,7 @@ describe('VehicleService', () => {
           propietarioId: data.propietario_id,
           createdAt: new Date(),
           updatedAt: new Date(),
+          propietario: mockOwner,
         });
 
       ownershipHistoryRepository.create = () =>
@@ -87,11 +89,34 @@ describe('VehicleService', () => {
 
       expect(result.marca).to.equal('Toyota');
       expect(result.matricula).to.equal('1234ABC');
+      expect(result.propietario).to.exist;
+      expect(result.propietario.id).to.equal(ownerId);
+      expect(result).to.not.have.property('propietarioId');
     });
   });
 
   describe('getAllVehicles', () => {
     it('should return an array of vehicles', async () => {
+      const mockOwner1 = {
+        id: 'user-1',
+        nombre: 'Owner 1',
+        email: 'owner1@example.com',
+        tipoPermiso: LicenseType.B,
+        permisoValidoHasta: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const mockOwner2 = {
+        id: 'user-2',
+        nombre: 'Owner 2',
+        email: 'owner2@example.com',
+        tipoPermiso: LicenseType.A,
+        permisoValidoHasta: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
       const mockVehicles = [
         {
           id: 'vehicle-1',
@@ -102,6 +127,7 @@ describe('VehicleService', () => {
           propietarioId: 'user-1',
           createdAt: new Date(),
           updatedAt: new Date(),
+          propietario: mockOwner1,
         },
         {
           id: 'vehicle-2',
@@ -112,16 +138,20 @@ describe('VehicleService', () => {
           propietarioId: 'user-2',
           createdAt: new Date(),
           updatedAt: new Date(),
+          propietario: mockOwner2,
         },
       ];
 
-      vehicleRepository.findAll = () => Promise.resolve(mockVehicles);
+      vehicleRepository.findAllWithOwner = () => Promise.resolve(mockVehicles);
 
       const result = await service.getAllVehicles();
 
       expect(result).to.be.an('array');
       expect(result).to.have.lengthOf(2);
       expect(result[0].marca).to.equal('Toyota');
+      expect(result[0].propietario).to.exist;
+      expect(result[0].propietario.id).to.equal('user-1');
+      expect(result[0]).to.not.have.property('propietarioId');
     });
   });
 
@@ -144,29 +174,33 @@ describe('VehicleService', () => {
           updatedAt: new Date(),
         });
 
-      userRepository.findById = () =>
-        Promise.resolve({
-          id: userId,
-          nombre: 'Test Driver',
-          email: 'driver@example.com',
-          tipoPermiso: LicenseType.B,
-          permisoValidoHasta: futureDate,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+      const mockDriver = {
+        id: userId,
+        nombre: 'Test Driver',
+        email: 'driver@example.com',
+        tipoPermiso: LicenseType.B,
+        permisoValidoHasta: futureDate,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
-      authorizedDriverRepository.addDriver = () =>
+      userRepository.findById = () => Promise.resolve(mockDriver);
+
+      authorizedDriverRepository.addDriverWithUser = () =>
         Promise.resolve({
           id: 'auth-123',
           vehicleId,
           userId,
           createdAt: new Date(),
+          user: mockDriver,
         });
 
       const result = await service.addAuthorizedDriver(vehicleId, userId);
 
       expect(result.vehicleId).to.equal(vehicleId);
-      expect(result.userId).to.equal(userId);
+      expect(result.driver).to.exist;
+      expect(result.driver.id).to.equal(userId);
+      expect(result).to.not.have.property('userId');
     });
   });
 });

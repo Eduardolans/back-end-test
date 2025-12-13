@@ -32,8 +32,7 @@ export class VehicleService {
       data.tipo
     );
 
-    const vehicleWithOwner =
-      await this.vehicleRepository.createWithOwner(data);
+    const vehicleWithOwner = await this.vehicleRepository.createWithOwner(data);
     await this.ownershipHistoryRepository.create(
       vehicleWithOwner.id,
       data.propietario_id
@@ -76,18 +75,19 @@ export class VehicleService {
     );
   }
 
-  public async getVehiclesByOwner(
-    ownerId: string
-  ): Promise<VehicleBusiness[]> {
+  public async getVehiclesByOwner(ownerId: string): Promise<VehicleBusiness[]> {
     await this.vehicleValidator.validateOwnerExists(ownerId);
-    const vehicles =
-      await this.vehicleRepository.findByOwnerWithOwner(ownerId);
-    return vehicles.map((v) => EntityMapper.toVehicleBusiness(v, v.propietario));
+    const vehicles = await this.vehicleRepository.findByOwnerWithOwner(ownerId);
+    return vehicles.map((v) =>
+      EntityMapper.toVehicleBusiness(v, v.propietario)
+    );
   }
 
   public async getAllVehicles(): Promise<VehicleBusiness[]> {
     const vehicles = await this.vehicleRepository.findAllWithOwner();
-    return vehicles.map((v) => EntityMapper.toVehicleBusiness(v, v.propietario));
+    return vehicles.map((v) =>
+      EntityMapper.toVehicleBusiness(v, v.propietario)
+    );
   }
 
   public async getAllVehiclesPaginated(
@@ -113,7 +113,10 @@ export class VehicleService {
     await this.vehicleValidator.validateOwnerLicense(userId, vehicle.tipo);
 
     const authorizedDriver =
-      await this.authorizedDriverRepository.addDriverWithUser(vehicleId, userId);
+      await this.authorizedDriverRepository.addDriverWithUser(
+        vehicleId,
+        userId
+      );
 
     return EntityMapper.toAuthorizedDriverBusiness(
       authorizedDriver,
@@ -135,6 +138,8 @@ export class VehicleService {
     await this.vehicleValidator.validateVehicleExists(vehicleId);
     const history =
       await this.ownershipHistoryRepository.findByVehicleWithUser(vehicleId);
-    return history.map((h) => EntityMapper.toOwnershipHistoryBusiness(h, h.user));
+    return history.map((h) =>
+      EntityMapper.toOwnershipHistoryBusiness(h, h.user)
+    );
   }
 }
