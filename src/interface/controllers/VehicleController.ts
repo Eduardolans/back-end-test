@@ -106,6 +106,22 @@ export class VehicleController {
     }
   };
 
+  public getAuthorizedDrivers = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { id } = req.params;
+
+      const drivers = await this.vehicleService.getAuthorizedDrivers(id);
+
+      res.status(200).json(drivers);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getOwnershipHistory = async (
     req: Request,
     res: Response,

@@ -212,4 +212,80 @@ describe('VehicleService', () => {
       expect(result).to.not.have.property('userId');
     });
   });
+
+  describe('getAuthorizedDrivers', () => {
+    it('should return list of authorized drivers for a vehicle', async () => {
+      const vehicleId = 'vehicle-123';
+
+      const mockDriver1 = {
+        id: 'driver-1',
+        nombre: 'Driver One',
+        email: 'driver1@example.com',
+        tipoPermiso: LicenseType.B,
+        permisoValidoHasta: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const mockDriver2 = {
+        id: 'driver-2',
+        nombre: 'Driver Two',
+        email: 'driver2@example.com',
+        tipoPermiso: LicenseType.B,
+        permisoValidoHasta: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const mockAuthorizedDrivers = [
+        {
+          id: 'auth-1',
+          vehicleId,
+          userId: 'driver-1',
+          createdAt: new Date(),
+          user: mockDriver1,
+        },
+        {
+          id: 'auth-2',
+          vehicleId,
+          userId: 'driver-2',
+          createdAt: new Date(),
+          user: mockDriver2,
+        },
+      ];
+
+      vehicleRepository.findById = () =>
+        Promise.resolve({
+          id: vehicleId,
+          marca: 'Toyota',
+          modelo: 'Corolla',
+          matricula: '1234ABC',
+          tipo: VehicleType.coche,
+          propietarioId: 'owner-id',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          propietario: {
+            id: 'owner-id',
+            nombre: 'Owner',
+            email: 'owner@example.com',
+            tipoPermiso: LicenseType.B,
+            permisoValidoHasta: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+
+      authorizedDriverRepository.findByVehicle = () =>
+        Promise.resolve(mockAuthorizedDrivers);
+
+      const result = await service.getAuthorizedDrivers(vehicleId);
+
+      expect(result).to.be.an('array');
+      expect(result).to.have.lengthOf(2);
+      expect(result[0].driver).to.exist;
+      expect(result[0].driver.id).to.equal('driver-1');
+      expect(result[0].driver.nombre).to.equal('Driver One');
+      expect(result[0]).to.not.have.property('userId');
+    });
+  });
 });

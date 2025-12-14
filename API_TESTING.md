@@ -426,7 +426,56 @@ curl -X POST http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores \
 
 ---
 
-### ✅ Test 11: Get vehicle ownership history (SUCCESS)
+### ✅ Test 11: Get authorized drivers (SUCCESS)
+
+**Extra 1: List authorized drivers**
+
+```bash
+curl -X GET http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores
+```
+
+**Description:** Returns list of all authorized drivers for a vehicle (excluding the owner). This test verifies the driver added in Test 10.
+
+**Response:** `200 OK` with array of authorized drivers
+
+**Example Response:**
+
+```json
+[
+  {
+    "id": "auth-driver-123",
+    "vehicleId": "vehicle-abc",
+    "driver": {
+      "id": "user-456",
+      "nombre": "Pedro González",
+      "email": "pedro.gonzalez@example.com",
+      "tipoPermiso": "B",
+      "permisoValidoHasta": "2027-12-06T19:41:50.361Z"
+    }
+  },
+  {
+    "id": "auth-driver-789",
+    "vehicleId": "vehicle-abc",
+    "driver": {
+      "id": "user-999",
+      "nombre": "Ana Martínez",
+      "email": "ana.martinez@example.com",
+      "tipoPermiso": "B",
+      "permisoValidoHasta": "2026-08-15T10:30:00.000Z"
+    }
+  }
+]
+```
+
+**Note:** Returns complete `driver` objects instead of `userId`. Internal fields (`createdAt`, etc.) are not exposed.
+
+**Errors possible:**
+
+- `404 Not Found` - Vehicle not found
+
+---
+
+### ✅ Test 12: Get vehicle ownership history (SUCCESS)
 
 **Extra 3: Historial de propietarios**
 
@@ -485,7 +534,7 @@ curl -X GET http://localhost:3000/vehiculos/{VEHICLE_ID}/historial
 
 ---
 
-### ✅ Test 12: Pagination for users (SUCCESS)
+### ✅ Test 13: Pagination for users (SUCCESS)
 
 **Bonus feature: Pagination support**
 
@@ -524,7 +573,7 @@ curl -X GET "http://localhost:3000/usuarios?page=1&limit=10"
 
 ---
 
-### ✅ Test 13: Pagination for vehicles (SUCCESS)
+### ✅ Test 14: Pagination for vehicles (SUCCESS)
 
 **Bonus feature: Pagination support**
 
@@ -572,7 +621,7 @@ curl -X GET "http://localhost:3000/vehiculos?page=2&limit=5"
 
 ---
 
-### ✅ Test 14: Remove authorized driver (SUCCESS)
+### ✅ Test 15: Remove authorized driver (SUCCESS)
 
 **Extra 1: Múltiples conductores**
 
@@ -592,7 +641,7 @@ curl -X DELETE http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores/{CONDUCT
 
 ---
 
-### ✅ Test 15: Get ownership history for Vehicle 1 (SUCCESS)
+### ✅ Test 16: Get ownership history for Vehicle 1 (SUCCESS)
 
 **Extra 3: Historial de propietarios with seed data**
 
@@ -616,7 +665,7 @@ curl -X GET http://localhost:3000/vehiculos/{VEHICLE1_ID}/historial
 
 ---
 
-### ✅ Test 16: Get ownership history for Vehicle 2 (SUCCESS)
+### ✅ Test 17: Get ownership history for Vehicle 2 (SUCCESS)
 
 **Extra 3: Historial de propietarios with seed data**
 
@@ -694,15 +743,15 @@ curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000
 
 **Core Requirements (9 automated tests)**: Tests 1-9 are run by `npm run test:api`
 
-**Extra Features & Additional Tests (7 automated tests)**: Tests 10-16 cover authorized drivers, ownership history, and pagination
+**Extra Features & Additional Tests (8 automated tests)**: Tests 10-17 cover authorized drivers, ownership history, and pagination
 
-- Tests 10, 14: Extra 1 (Authorized drivers - add & remove)
-- Tests 11, 15, 16: Extra 3 (Ownership history - after transfer + seed data)
-- Tests 12-13: Bonus (Pagination)
+- Tests 10, 11, 15: Extra 1 (Authorized drivers - add, list & remove)
+- Tests 12, 16, 17: Extra 3 (Ownership history - after transfer + seed data)
+- Tests 13-14: Bonus (Pagination)
 
 **Manual-Only Tests (3 additional)**: Tests A-C are additional edge cases for manual verification
 
-**Total tests: 19** (16 automated + 3 manual)
+**Total tests: 20** (17 automated + 3 manual)
 
 ---
 

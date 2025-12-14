@@ -4,12 +4,12 @@
 
 # Automated API Tests for Vehicle Registry
 #
-# This script runs 16 automated test scenarios that align with API_TESTING.md
+# This script runs 17 automated test scenarios that align with API_TESTING.md
 # Tests cover:
 #   - Core requirements (Tests 1-9)
-#   - Extra 1: Authorized drivers (Tests 10, 14)
-#   - Extra 3: Ownership history (Tests 11, 15, 16)
-#   - Bonus: Pagination (Tests 12-13)
+#   - Extra 1: Authorized drivers (Tests 10, 11, 15)
+#   - Extra 3: Ownership history (Tests 12, 16, 17)
+#   - Bonus: Pagination (Tests 13-14)
 #
 # Usage: npm run test:api
 # Requires: Server running (npm run dev) and database seeded (npm run seed)
@@ -342,8 +342,45 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 11: Get ownership history (SUCCESS)
-echo -e "${YELLOW}Test 11: Get vehicle ownership history${NC}"
+# Test 11: Get authorized drivers (SUCCESS)
+echo -e "${YELLOW}Test 11: Get authorized drivers for vehicle${NC}"
+echo -e "GET ${API_URL}/vehiculos/${VEHICLE_ID}/conductores"
+RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos/${VEHICLE_ID}/conductores)
+
+HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
+BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
+
+if [ "$HTTP_CODE" = "200" ]; then
+  DRIVERS_COUNT=$(echo "$BODY" | jq '. | length')
+  echo -e "${GREEN}✅ Status: 200 OK${NC}"
+
+  # Validate we have at least the driver we just added
+  if [ "$DRIVERS_COUNT" -gt "0" ]; then
+    echo -e "${GREEN}✅ Found ${DRIVERS_COUNT} authorized driver(s)${NC}"
+
+    # Validate business model format (should have 'driver' object, not 'userId')
+    FIRST_HAS_DRIVER=$(echo "$BODY" | jq '.[0] | has("driver")')
+    FIRST_HAS_USER_ID=$(echo "$BODY" | jq '.[0] | has("userId")')
+    FIRST_HAS_CREATED=$(echo "$BODY" | jq '.[0] | has("createdAt")')
+
+    if [ "$FIRST_HAS_DRIVER" = "true" ] && [ "$FIRST_HAS_USER_ID" = "false" ] && [ "$FIRST_HAS_CREATED" = "false" ]; then
+      echo -e "${GREEN}✅ Business model format correct (driver object, no internal fields)${NC}"
+    else
+      echo -e "${RED}⚠️  Warning: Driver format doesn't match business model${NC}"
+      echo -e "   Has driver: $FIRST_HAS_DRIVER | Has userId: $FIRST_HAS_USER_ID | Has createdAt: $FIRST_HAS_CREATED"
+    fi
+  else
+    echo -e "${RED}⚠️  Warning: Expected at least 1 driver${NC}"
+  fi
+
+  echo -e "Response: ${BODY}\n"
+else
+  echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
+  echo -e "Response: ${BODY}\n"
+fi
+
+# Test 12: Get ownership history (SUCCESS)
+echo -e "${YELLOW}Test 12: Get vehicle ownership history${NC}"
 echo -e "GET ${API_URL}/vehiculos/${VEHICLE_ID}/historial"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos/${VEHICLE_ID}/historial)
 
@@ -374,8 +411,8 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 12: Pagination for users (SUCCESS)
-echo -e "${YELLOW}Test 12: Get users with pagination${NC}"
+# Test 13: Pagination for users (SUCCESS)
+echo -e "${YELLOW}Test 13: Get users with pagination${NC}"
 echo -e "GET ${API_URL}/usuarios?page=1&limit=2"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET "${API_URL}/usuarios?page=1&limit=2")
 
@@ -409,8 +446,8 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 13: Pagination for vehicles (SUCCESS)
-echo -e "${YELLOW}Test 13: Get vehicles with pagination${NC}"
+# Test 14: Pagination for vehicles (SUCCESS)
+echo -e "${YELLOW}Test 14: Get vehicles with pagination${NC}"
 echo -e "GET ${API_URL}/vehiculos?page=1&limit=2"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET "${API_URL}/vehiculos?page=1&limit=2")
 
@@ -445,9 +482,9 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 14: Remove an authorized driver (Extra 1 - should exist from seed)
+# Test 15: Remove an authorized driver (Extra 1 - should exist from seed)
 if [ -n "$AUTHORIZED_DRIVER_ID" ] && [ "$AUTHORIZED_DRIVER_ID" != "null" ]; then
-  echo -e "${YELLOW}Test 14: Remove authorized driver from vehicle${NC}"
+  echo -e "${YELLOW}Test 15: Remove authorized driver from vehicle${NC}"
   echo -e "DELETE ${API_URL}/vehiculos/${VEHICLE1_ID}/conductores/${AUTHORIZED_DRIVER_ID}"
   RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X DELETE ${API_URL}/vehiculos/${VEHICLE1_ID}/conductores/${AUTHORIZED_DRIVER_ID})
 
@@ -461,11 +498,11 @@ if [ -n "$AUTHORIZED_DRIVER_ID" ] && [ "$AUTHORIZED_DRIVER_ID" != "null" ]; then
     echo -e "Response: ${BODY}\n"
   fi
 else
-  echo -e "${YELLOW}Test 14: Skip - No authorized driver found in seed data${NC}\n"
+  echo -e "${YELLOW}Test 15: Skip - No authorized driver found in seed data${NC}\n"
 fi
 
-# Test 15: Get ownership history for vehicle with history (from seed)
-echo -e "${YELLOW}Test 15: Get ownership history for Vehicle 1 (has seed history)${NC}"
+# Test 16: Get ownership history for vehicle with history (from seed)
+echo -e "${YELLOW}Test 16: Get ownership history for Vehicle 1 (has seed history)${NC}"
 echo -e "GET ${API_URL}/vehiculos/${VEHICLE1_ID}/historial"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos/${VEHICLE1_ID}/historial)
 
@@ -487,8 +524,8 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 16: Get ownership history for Vehicle 2 (also has seed history)
-echo -e "${YELLOW}Test 16: Get ownership history for Vehicle 2 (has seed history)${NC}"
+# Test 17: Get ownership history for Vehicle 2 (also has seed history)
+echo -e "${YELLOW}Test 17: Get ownership history for Vehicle 2 (has seed history)${NC}"
 echo -e "GET ${API_URL}/vehiculos/${VEHICLE2_ID}/historial"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos/${VEHICLE2_ID}/historial)
 

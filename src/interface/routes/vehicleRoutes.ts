@@ -32,6 +32,7 @@ router.get('/', vehicleController.getAllVehicles);
 router.post('/', vehicleController.registerVehicle);
 router.put('/:id/propietario', vehicleController.transferOwnership);
 router.post('/:id/conductores', vehicleController.addAuthorizedDriver);
+router.get('/:id/conductores', vehicleController.getAuthorizedDrivers);
 router.delete(
   '/:id/conductores/:conductorId',
   vehicleController.removeAuthorizedDriver

@@ -128,6 +128,17 @@ export class VehicleService {
     await this.authorizedDriverRepository.removeDriver(vehicleId, userId);
   }
 
+  public async getAuthorizedDrivers(
+    vehicleId: string
+  ): Promise<AuthorizedDriverBusiness[]> {
+    await this.vehicleValidator.validateVehicleExists(vehicleId);
+    const drivers =
+      await this.authorizedDriverRepository.findByVehicle(vehicleId);
+    return drivers.map((d) =>
+      EntityMapper.toAuthorizedDriverBusiness(d, d.user)
+    );
+  }
+
   public async getOwnershipHistory(
     vehicleId: string
   ): Promise<OwnershipHistoryBusiness[]> {
