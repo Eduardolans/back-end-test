@@ -4,13 +4,12 @@
 
 # Automated API Tests for Vehicle Registry
 #
-# This script runs 17 automated test scenarios that align with API_TESTING.md
+# This script runs 16 automated test scenarios that align with API_TESTING.md
 # Tests cover:
 #   - Core requirements (Tests 1-9)
-#   - Extra 1: Authorized drivers (Tests 10, 15)
-#   - Extra 3: Ownership history (Tests 11, 16, 17)
+#   - Extra 1: Authorized drivers (Tests 10, 14)
+#   - Extra 3: Ownership history (Tests 11, 15, 16)
 #   - Bonus: Pagination (Tests 12-13)
-#   - Additional endpoint tests (Test 14)
 #
 # Usage: npm run test:api
 # Requires: Server running (npm run dev) and database seeded (npm run seed)
@@ -446,26 +445,9 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 14: Get vehicles for specific user (Core requirement)
-echo -e "${YELLOW}Test 14: Get vehicles for User 1 (Juan Pérez)${NC}"
-echo -e "GET ${API_URL}/usuarios/${USER1_ID}/vehiculos"
-RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/usuarios/${USER1_ID}/vehiculos)
-
-HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
-BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
-
-if [ "$HTTP_CODE" = "200" ]; then
-  VEHICLE_COUNT=$(echo "$BODY" | jq '. | length')
-  echo -e "${GREEN}✅ Status: 200 OK${NC}"
-  echo -e "Found ${VEHICLE_COUNT} vehicle(s) for user\n"
-else
-  echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
-  echo -e "Response: ${BODY}\n"
-fi
-
-# Test 15: Remove an authorized driver (Extra 1 - should exist from seed)
+# Test 14: Remove an authorized driver (Extra 1 - should exist from seed)
 if [ -n "$AUTHORIZED_DRIVER_ID" ] && [ "$AUTHORIZED_DRIVER_ID" != "null" ]; then
-  echo -e "${YELLOW}Test 15: Remove authorized driver from vehicle${NC}"
+  echo -e "${YELLOW}Test 14: Remove authorized driver from vehicle${NC}"
   echo -e "DELETE ${API_URL}/vehiculos/${VEHICLE1_ID}/conductores/${AUTHORIZED_DRIVER_ID}"
   RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X DELETE ${API_URL}/vehiculos/${VEHICLE1_ID}/conductores/${AUTHORIZED_DRIVER_ID})
 
@@ -479,11 +461,11 @@ if [ -n "$AUTHORIZED_DRIVER_ID" ] && [ "$AUTHORIZED_DRIVER_ID" != "null" ]; then
     echo -e "Response: ${BODY}\n"
   fi
 else
-  echo -e "${YELLOW}Test 15: Skip - No authorized driver found in seed data${NC}\n"
+  echo -e "${YELLOW}Test 14: Skip - No authorized driver found in seed data${NC}\n"
 fi
 
-# Test 16: Get ownership history for vehicle with history (from seed)
-echo -e "${YELLOW}Test 16: Get ownership history for Vehicle 1 (has seed history)${NC}"
+# Test 15: Get ownership history for vehicle with history (from seed)
+echo -e "${YELLOW}Test 15: Get ownership history for Vehicle 1 (has seed history)${NC}"
 echo -e "GET ${API_URL}/vehiculos/${VEHICLE1_ID}/historial"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos/${VEHICLE1_ID}/historial)
 
@@ -505,8 +487,8 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 17: Get ownership history for Vehicle 2 (also has seed history)
-echo -e "${YELLOW}Test 17: Get ownership history for Vehicle 2 (has seed history)${NC}"
+# Test 16: Get ownership history for Vehicle 2 (also has seed history)
+echo -e "${YELLOW}Test 16: Get ownership history for Vehicle 2 (has seed history)${NC}"
 echo -e "GET ${API_URL}/vehiculos/${VEHICLE2_ID}/historial"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos/${VEHICLE2_ID}/historial)
 

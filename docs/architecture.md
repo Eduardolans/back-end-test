@@ -35,7 +35,7 @@ El sistema sigue una arquitectura en capas basada en los principios de **Clean A
 └─────────────────────────────────────────┘
 ```
 
-### 1. Controllers (`src/controllers/`)
+### 1. Controllers (`src/interface/controllers/`)
 
 **Responsabilidades:**
 - Manejar requests y responses HTTP
@@ -84,7 +84,7 @@ public async registerVehicle(data: CreateVehicleDTO): Promise<VehicleBusiness> {
 }
 ```
 
-### 3. Validators (`src/validators/`)
+### 3. Validators (`src/services/*Validator.ts`)
 
 **Responsabilidades:**
 - Centralizar validaciones de negocio
@@ -156,7 +156,7 @@ public async findById(id: string): Promise<VehicleData | null> {
 }
 ```
 
-### 5. Mappers (`src/mappers/`)
+### 5. Mappers (`src/services/EntityMapper.ts`)
 
 **Responsabilidades:**
 - Transformar modelos de datos a modelos de negocio
@@ -186,17 +186,19 @@ static toVehicleBusiness(vehicle: Vehicle, owner: User): VehicleBusiness {
 
 La arquitectura implementa una estricta separación entre modelos de datos y modelos de negocio:
 
-### Modelos de Datos (`dataModels.ts`)
+### Modelos de Datos (`src/repositories/types.ts`)
 
-- Provienen directamente de Prisma
+- Extienden los tipos base de Prisma con relaciones incluidas
 - Incluyen campos técnicos: `createdAt`, `updatedAt`, `propietarioId`
 - Solo se usan en la capa de repositorios
+- Ejemplo: `VehicleData`, `AuthorizedDriverData`, `OwnershipHistoryData`
 
-### Modelos de Negocio (`businessModels.ts`)
+### Modelos de Negocio (`src/services/types.ts`)
 
-- Diseñados para la capa de aplicación
+- Diseñados para la capa de aplicación y API
 - NO incluyen timestamps ni campos técnicos
 - Incluyen objetos relacionados completos en lugar de IDs
+- Ejemplo: `VehicleBusiness`, `UserBusiness`, `AuthorizedDriverBusiness`
 
 **Comparación:**
 
@@ -245,15 +247,16 @@ La arquitectura implementa una estricta separación entre modelos de datos y mod
 
 ## Manejo de Errores
 
-### Errores de Dominio (`src/errors/DomainErrors.ts`)
+### Errores de Negocio (`src/services/errors.ts`)
 
-La aplicación define errores específicos del dominio que son independientes del protocolo HTTP:
+La aplicación define errores específicos de negocio que son independientes del protocolo HTTP:
 
 ```typescript
-DomainError (base)
+BusinessError (base)
   ├─ NotFoundError         // Recurso no encontrado
   ├─ ValidationError       // Regla de negocio violada
-  └─ DuplicityError        // Duplicidad de recursos únicos
+  ├─ DuplicityError        // Duplicidad de recursos únicos
+  └─ SystemError           // Errores del sistema
 ```
 
 ### Ejemplo de Uso:
@@ -365,18 +368,22 @@ HTTP Request (JSON)
 
 La arquitectura facilita el testing en todos los niveles:
 
-### Tests Unitarios
+### Tests Unitarios (`test/unit/`)
 
-- **Servicios**: Mock de repositorios y validadores
+- **Servicios**: Mock manual de repositorios (sin framework de mocking)
+- **Repositorios**: Mock de PrismaClient usando Sinon
 - **Validadores**: Mock de repositorios
 - **Mappers**: Tests puros sin dependencias
+- Base de datos: Ninguna (todo mockeado)
 
-### Tests de Integración
+### Tests de Integración (`test/integration/`)
 
-- **Servicios + Repositorios + BD real**
-- Verifican flujo completo con Prisma
+- **Repositorios + PrismaClient + BD real**
+- Verifican persistencia y relaciones en base de datos de test (`vehicle_registry_test`)
+- Cada test limpia los datos antes de ejecutar (deleteMany)
+- Usan `.env.test` para configuración de base de datos
 
-### Ejemplo de Test Unitario:
+### Ejemplo de Test Unitario (Servicio):
 
 ```typescript
 describe('VehicleService', () => {
@@ -399,6 +406,68 @@ describe('VehicleService', () => {
 });
 ```
 
+### Ejemplo de Test Unitario (Repositorio con Sinon):
+
+```typescript
+import sinon from 'sinon';
+
+describe('VehicleRepository Unit Tests', () => {
+  let repository: VehicleRepository;
+  let prismaMock: MockPrismaClient;
+
+  beforeEach(() => {
+    prismaMock = {
+      vehicle: {
+        findUnique: sinon.stub(),
+        create: sinon.stub(),
+      },
+    };
+    repository = new VehicleRepository(prismaMock as unknown as PrismaClient);
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it('should call prisma.vehicle.findUnique', async () => {
+    prismaMock.vehicle.findUnique.resolves(mockVehicle);
+
+    const result = await repository.findById('vehicle-1');
+
+    expect(result).to.deep.equal(mockVehicle);
+    sinon.assert.calledOnceWithExactly(prismaMock.vehicle.findUnique, {
+      where: { id: 'vehicle-1' },
+      include: { propietario: true },
+    });
+  });
+});
+```
+
+### Ejemplo de Test de Integración (Repositorio):
+
+```typescript
+describe('VehicleRepository Integration Tests', () => {
+  let vehicleRepository: VehicleRepository;
+
+  beforeEach(async () => {
+    const prisma = getPrismaClient();
+    await prisma.vehicle.deleteMany();
+    await prisma.user.deleteMany();
+
+    vehicleRepository = new VehicleRepository();
+  });
+
+  it('should create vehicle and persist to database', async () => {
+    const vehicle = await vehicleRepository.create(vehicleData);
+
+    // Verify persistence
+    const fromDb = await vehicleRepository.findById(vehicle.id);
+    expect(fromDb).to.not.be.null;
+    expect(fromDb?.marca).to.equal('Toyota');
+  });
+});
+```
+
 ## Convenciones de Código
 
 ### Nomenclatura
@@ -414,18 +483,26 @@ describe('VehicleService', () => {
 
 ```
 src/
-├── controllers/        # HTTP handlers
-├── services/          # Business logic
-├── validators/        # Business validations
-├── repositories/      # Data access
-├── mappers/           # Data transformation
-├── models/
-│   ├── types.ts       # DTOs y tipos auxiliares
-│   ├── dataModels.ts  # Re-exports de Prisma
-│   └── businessModels.ts  # Modelos de negocio
-├── errors/            # Domain errors
-├── middleware/        # Express middleware
-└── routes/            # Route definitions
+├── interface/              # HTTP/API layer
+│   ├── controllers/        # HTTP handlers
+│   ├── middleware/         # Express middleware
+│   └── routes/             # Route definitions
+├── services/               # Business logic layer
+│   ├── EntityMapper.ts     # Data transformation
+│   ├── errors.ts           # Domain errors
+│   ├── LicenseValidator.ts # License validation logic
+│   ├── VehicleValidator.ts # Vehicle validations
+│   ├── UserService.ts      # User business logic
+│   ├── VehicleService.ts   # Vehicle business logic
+│   └── types.ts            # Business models & DTOs
+├── repositories/           # Data access layer
+│   ├── VehicleRepository.ts
+│   ├── UserRepository.ts
+│   ├── AuthorizedDriverRepository.ts
+│   ├── OwnershipHistoryRepository.ts
+│   ├── prisma.ts           # Prisma client singleton
+│   └── types.ts            # Data models with relations
+└── index.ts                # Application entry point
 ```
 
 ## Mejoras Futuras

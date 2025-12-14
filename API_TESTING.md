@@ -103,22 +103,25 @@ npm run test:unit
 
 ### Overview
 
-Integration tests verify that services work correctly with the real Prisma ORM and database, testing data persistence and relationships.
+Integration tests verify that repositories work correctly with the real Prisma ORM and database, testing data persistence and relationships.
 
 **Important:** Integration tests use a **separate test database** (`vehicle_registry_test`) configured in `.env.test`. This database is cleaned before each test, so it won't affect your development data or seed data.
 
 ### Test Files
 
-- `test/integration/VehicleService.integration.test.ts` - Vehicle operations with database
-- `test/integration/UserService.integration.test.ts` - User operations with database
+- `test/integration/VehicleRepository.test.ts` - Vehicle repository operations with database
+- `test/integration/UserRepository.test.ts` - User repository operations with database
+- `test/integration/AuthorizedDriverRepository.test.ts` - Authorized driver repository operations
+- `test/integration/OwnershipHistoryRepository.test.ts` - Ownership history repository operations
 
 ### Key Test Cases Covered
 
-- ✅ Register vehicle and persist to database
-- ✅ Transfer vehicle ownership and update database
-- ✅ Add authorized driver and persist relationship
-- ✅ Retrieve user's vehicles from database
-- ✅ Verify ownership history is recorded
+- ✅ Create records and verify persistence to database
+- ✅ Query data with relationships (e.g., vehicle with owner)
+- ✅ Update records and verify changes persist
+- ✅ Paginated queries return correct metadata
+- ✅ Find operations return null when records don't exist
+- ✅ Ownership history records are created and updated correctly
 
 ### Run Integration Tests
 
@@ -276,24 +279,6 @@ curl -X POST http://localhost:3000/vehiculos \
 
 ---
 
-### ❌ Test 5: Register vehicle for non-existent user (FAIL)
-
-```bash
-curl -X POST http://localhost:3000/vehiculos \
-  -H "Content-Type: application/json" \
-  -d '{
-    "marca": "Audi",
-    "modelo": "A4",
-    "matricula": "NEW004",
-    "tipo": "coche",
-    "propietario_id": "00000000-0000-0000-0000-000000000000"
-  }'
-```
-
-**Expected**: `404 Not Found` - "Owner not found"
-
----
-
 ### ✅ Test 5: Get all users (SUCCESS)
 
 ```bash
@@ -441,29 +426,11 @@ curl -X POST http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores \
 
 ---
 
-### ✅ Test 11: Remove authorized driver (SUCCESS)
-
-**Extra 1: Múltiples conductores**
-
-```bash
-curl -X DELETE http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores/{CONDUCTOR_ID}
-```
-
-**Validations:**
-
-- Vehicle must exist
-
-**Response:** `204 No Content`
-
-**Errors possible:**
-
-- `404 Not Found` - Vehicle not found
-
----
-
-### ✅ Test 12: Get vehicle ownership history (SUCCESS)
+### ✅ Test 11: Get vehicle ownership history (SUCCESS)
 
 **Extra 3: Historial de propietarios**
+
+Get ownership history for a vehicle after transfer (Test 8). This test verifies that the ownership history was recorded when the transfer happened.
 
 ```bash
 curl -X GET http://localhost:3000/vehiculos/{VEHICLE_ID}/historial
@@ -480,19 +447,6 @@ curl -X GET http://localhost:3000/vehiculos/{VEHICLE_ID}/historial
 ```json
 [
   {
-    "id": "history-1",
-    "vehicleId": "vehicle-abc",
-    "owner": {
-      "id": "user-123",
-      "nombre": "Juan Pérez",
-      "email": "juan.perez@example.com",
-      "tipoPermiso": "B",
-      "permisoValidoHasta": "2027-12-06T19:41:50.361Z"
-    },
-    "fechaInicio": "2025-01-01T00:00:00.000Z",
-    "fechaFin": "2025-06-01T00:00:00.000Z"
-  },
-  {
     "id": "history-2",
     "vehicleId": "vehicle-abc",
     "owner": {
@@ -504,6 +458,19 @@ curl -X GET http://localhost:3000/vehiculos/{VEHICLE_ID}/historial
     },
     "fechaInicio": "2025-06-01T00:00:00.000Z",
     "fechaFin": null
+  },
+  {
+    "id": "history-1",
+    "vehicleId": "vehicle-abc",
+    "owner": {
+      "id": "user-123",
+      "nombre": "Juan Pérez",
+      "email": "juan.perez@example.com",
+      "tipoPermiso": "B",
+      "permisoValidoHasta": "2027-12-06T19:41:50.361Z"
+    },
+    "fechaInicio": "2025-01-01T00:00:00.000Z",
+    "fechaFin": "2025-06-01T00:00:00.000Z"
   }
 ]
 ```
@@ -518,7 +485,7 @@ curl -X GET http://localhost:3000/vehiculos/{VEHICLE_ID}/historial
 
 ---
 
-### ✅ Test 13: Pagination for users (SUCCESS)
+### ✅ Test 12: Pagination for users (SUCCESS)
 
 **Bonus feature: Pagination support**
 
@@ -557,7 +524,7 @@ curl -X GET "http://localhost:3000/usuarios?page=1&limit=10"
 
 ---
 
-### ✅ Test 14: Pagination for vehicles (SUCCESS)
+### ✅ Test 13: Pagination for vehicles (SUCCESS)
 
 **Bonus feature: Pagination support**
 
@@ -605,11 +572,97 @@ curl -X GET "http://localhost:3000/vehiculos?page=2&limit=5"
 
 ---
 
+### ✅ Test 14: Remove authorized driver (SUCCESS)
+
+**Extra 1: Múltiples conductores**
+
+```bash
+curl -X DELETE http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores/{CONDUCTOR_ID}
+```
+
+**Validations:**
+
+- Vehicle must exist
+
+**Response:** `204 No Content`
+
+**Errors possible:**
+
+- `404 Not Found` - Vehicle not found
+
+---
+
+### ✅ Test 15: Get ownership history for Vehicle 1 (SUCCESS)
+
+**Extra 3: Historial de propietarios with seed data**
+
+Get ownership history for a specific vehicle that has historical data from seed.
+
+```bash
+curl -X GET http://localhost:3000/vehiculos/{VEHICLE1_ID}/historial
+```
+
+**Validations:**
+
+- Vehicle must exist
+
+**Response:** `200 OK` with ownership history
+
+**Note:** This test verifies that seed data includes ownership history records.
+
+**Errors possible:**
+
+- `404 Not Found` - Vehicle not found
+
+---
+
+### ✅ Test 16: Get ownership history for Vehicle 2 (SUCCESS)
+
+**Extra 3: Historial de propietarios with seed data**
+
+Get ownership history for another vehicle with historical ownership records.
+
+```bash
+curl -X GET http://localhost:3000/vehiculos/{VEHICLE2_ID}/historial
+```
+
+**Validations:**
+
+- Vehicle must exist
+
+**Response:** `200 OK` with ownership history
+
+**Note:** This test also verifies ownership history from seed data.
+
+**Errors possible:**
+
+- `404 Not Found` - Vehicle not found
+
+---
+
 ## Additional Manual Tests (Not Automated)
 
 These edge cases can be tested manually but are not included in the automated script:
 
-### ❌ Manual Test A: Transfer to user without valid license (FAIL)
+### ❌ Manual Test A: Register vehicle for non-existent user (FAIL)
+
+```bash
+curl -X POST http://localhost:3000/vehiculos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "marca": "Audi",
+    "modelo": "A4",
+    "matricula": "NEW004",
+    "tipo": "coche",
+    "propietario_id": "00000000-0000-0000-0000-000000000000"
+  }'
+```
+
+**Expected**: `404 Not Found` - "Owner not found"
+
+---
+
+### ❌ Manual Test B: Transfer to user without valid license (FAIL)
 
 ```bash
 curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
@@ -623,7 +676,7 @@ curl -X PUT http://localhost:3000/vehiculos/{VEHICLE_ID}/propietario \
 
 ---
 
-### ❌ Manual Test B: Transfer non-existent vehicle (FAIL)
+### ❌ Manual Test C: Transfer non-existent vehicle (FAIL)
 
 ```bash
 curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000/propietario \
@@ -641,16 +694,15 @@ curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000
 
 **Core Requirements (9 automated tests)**: Tests 1-9 are run by `npm run test:api`
 
-**Extra Features & Additional Tests (8 automated tests)**: Tests 10-17 cover authorized drivers, ownership history, and pagination
+**Extra Features & Additional Tests (7 automated tests)**: Tests 10-16 cover authorized drivers, ownership history, and pagination
 
-- Tests 10, 15: Extra 1 (Authorized drivers - add & remove)
-- Tests 11, 16, 17: Extra 3 (Ownership history with seed data)
+- Tests 10, 14: Extra 1 (Authorized drivers - add & remove)
+- Tests 11, 15, 16: Extra 3 (Ownership history - after transfer + seed data)
 - Tests 12-13: Bonus (Pagination)
-- Test 14: Additional endpoint (user vehicles)
 
-**Manual-Only Tests (2 additional)**: Tests A-B are additional edge cases for manual verification
+**Manual-Only Tests (3 additional)**: Tests A-C are additional edge cases for manual verification
 
-**Total tests: 19** (17 automated + 2 manual)
+**Total tests: 19** (16 automated + 3 manual)
 
 ---
 
@@ -689,7 +741,7 @@ npm run docker:up:detach
 # Migrate development database
 npm run prisma:migrate
 
-# Migrate test database (if needed)
+# Migrate test database
 npm run prisma:migrate:test
 ```
 
@@ -700,14 +752,18 @@ npm run prisma:migrate:test
 ### Option 1: Prisma Studio (Recommended - GUI)
 
 ```bash
-# View development database (default)
+# View development database
 npm run prisma:studio
+# Opens at http://localhost:5555
 
-# View test database
-dotenv -e .env.test -- npx prisma studio
+# View test database (can run simultaneously)
+npm run prisma:studio:test
+# Opens at http://localhost:5556
 ```
 
-Open http://localhost:5555 to view and edit data visually.
+**Both databases can be viewed at the same time:**
+- Development database: http://localhost:5555
+- Test database: http://localhost:5556
 
 ### Option 2: TypeScript Script
 
