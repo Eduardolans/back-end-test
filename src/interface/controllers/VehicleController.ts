@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { VehicleService } from '../services/VehicleService';
-import { CreateVehicleDTO, TransferOwnershipDTO } from '../models/types';
+import { VehicleService } from '../../services/VehicleService';
+import {
+  CreateVehicleBusiness,
+  TransferOwnershipBusiness,
+} from '../../services/types';
 
 export class VehicleController {
   constructor(private vehicleService: VehicleService) {}
@@ -38,7 +41,7 @@ export class VehicleController {
     next: NextFunction
   ): Promise<void> => {
     try {
-      const data = req.body as CreateVehicleDTO;
+      const data = req.body as CreateVehicleBusiness;
       const vehicle = await this.vehicleService.registerVehicle(data);
 
       res.status(201).json(vehicle);
@@ -54,7 +57,7 @@ export class VehicleController {
   ): Promise<void> => {
     try {
       const { id } = req.params;
-      const data = req.body as TransferOwnershipDTO;
+      const data = req.body as TransferOwnershipBusiness;
 
       const vehicle = await this.vehicleService.transferOwnership(
         id,

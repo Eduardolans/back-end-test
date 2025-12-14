@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserService } from '../services/UserService';
-import { VehicleService } from '../services/VehicleService';
+import { UserService } from '../../services/UserService';
+import { VehicleService } from '../../services/VehicleService';
 
 export class UserController {
   constructor(

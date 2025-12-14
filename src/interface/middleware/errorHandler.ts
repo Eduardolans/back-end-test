@@ -3,18 +3,8 @@ import {
   NotFoundError,
   ValidationError,
   DuplicityError,
-  DomainError,
-} from '../errors/DomainErrors';
-
-export class AppError extends Error {
-  constructor(
-    public statusCode: number,
-    public message: string
-  ) {
-    super(message);
-    Object.setPrototypeOf(this, AppError.prototype);
-  }
-}
+  BusinessError,
+} from '../../services/errors';
 
 export function errorHandler(
   err: Error,
@@ -35,12 +25,9 @@ export function errorHandler(
   } else if (err instanceof DuplicityError) {
     statusCode = 409;
     errorName = err.name;
-  } else if (err instanceof DomainError) {
+  } else if (err instanceof BusinessError) {
     statusCode = 400;
     errorName = err.name;
-  } else if (err instanceof AppError) {
-    statusCode = err.statusCode;
-    errorName = 'AppError';
   }
 
   res.status(statusCode).json({
