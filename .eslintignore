@@ -1,3 +1,0 @@
-# Test files to ignore
-test/integration/AuthorizedDriverRepository1.test.ts
-test/unit/repositories/UserRepository1.test.ts

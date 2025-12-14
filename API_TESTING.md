@@ -6,13 +6,34 @@ This project uses a **three-tier testing strategy** covering unit tests, integra
 
 ## Testing Overview
 
-| Test Type             | Scope                              | Command                    | Coverage                                                    |
-| --------------------- | ---------------------------------- | -------------------------- | ----------------------------------------------------------- |
-| **Unit Tests**        | Individual services & repositories | `npm run test:unit`        | VehicleService, UserService, Repositories, LicenseValidator |
-| **Integration Tests** | Services with real database        | `npm run test:integration` | Database persistence, relationships                         |
-| **API Tests**         | HTTP endpoints (curl-based)        | `npm run test:api`         | REST endpoint validation                                    |
-| **All Tests**         | Run all test suites                | `npm run test`             | Full coverage                                               |
-| **Coverage Report**   | Test coverage metrics              | `npm run test:coverage`    | Overall code coverage                                       |
+| Test Type             | Scope                              | Database                       | Command                    | Coverage                                                    |
+| --------------------- | ---------------------------------- | ------------------------------ | -------------------------- | ----------------------------------------------------------- |
+| **Unit Tests**        | Individual services & repositories | None (mocked)                  | `npm run test:unit`        | VehicleService, UserService, Repositories, LicenseValidator |
+| **Integration Tests** | Services with real database        | `vehicle_registry_test` (test) | `npm run test:integration` | Database persistence, relationships                         |
+| **API Tests**         | HTTP endpoints (curl-based)        | `vehicle_registry` (dev)       | `npm run test:api`         | REST endpoint validation                                    |
+| **All Tests**         | Run all test suites                | Both (test + mocked)           | `npm run test`             | Full coverage                                               |
+| **Coverage Report**   | Test coverage metrics              | Both (test + mocked)           | `npm run test:coverage`    | Overall code coverage                                       |
+
+---
+
+## Database Configuration
+
+### Two Separate Databases
+
+This project uses **two separate databases** to isolate testing from development:
+
+| Database                | Purpose                   | Used By                  | Environment File |
+| ----------------------- | ------------------------- | ------------------------ | ---------------- |
+| `vehicle_registry`      | Development & API testing | `npm run dev`, API tests | `.env`           |
+| `vehicle_registry_test` | Integration & unit tests  | Test suites              | `.env.test`      |
+
+**Why separate databases?**
+
+- Integration tests clean the database before each test (`deleteMany()`)
+- This would delete seed data needed for API testing
+- Separate databases keep development data intact
+
+**Important:** When Docker starts, both databases are automatically created.
 
 ---
 
@@ -84,6 +105,8 @@ npm run test:unit
 
 Integration tests verify that services work correctly with the real Prisma ORM and database, testing data persistence and relationships.
 
+**Important:** Integration tests use a **separate test database** (`vehicle_registry_test`) configured in `.env.test`. This database is cleaned before each test, so it won't affect your development data or seed data.
+
 ### Test Files
 
 - `test/integration/VehicleService.integration.test.ts` - Vehicle operations with database
@@ -119,11 +142,13 @@ API tests use curl to validate HTTP endpoints with actual HTTP responses, status
 npm run dev
 ```
 
-### 2. Seed the database with test data
+### 2. Seed the development database with test data
 
 ```bash
 npm run seed
 ```
+
+**Note:** This seeds the **development database** (`vehicle_registry`), not the test database. The test database is automatically managed by integration tests.
 
 This will create:
 
@@ -140,12 +165,17 @@ npm run test:api
 ```
 
 **What the automated tests validate:**
+
 - HTTP status codes (201 Created, 200 OK, 400 Bad Request, 404 Not Found, 409 Conflict)
 - Business model response format (presence of nested objects like `propietario`, `driver`, `owner`)
 - Absence of internal fields (`createdAt`, `updatedAt`, `propietarioId`, `userId`)
 - Correct data transformations and relationships
 
-**Important:** If tests fail due to data state (e.g., vehicle already transferred), reseed the database first:
+**Important:**
+
+- API tests use the **development database** (`vehicle_registry`), so seed data persists
+- Integration tests use a **separate test database** (`vehicle_registry_test`) and won't affect seed data
+- If API tests fail due to data state (e.g., vehicle already transferred), reseed the database:
 
 ```bash
 npm run seed && npm run test:api
@@ -376,6 +406,7 @@ curl -X POST http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores \
 ```
 
 **Validations:**
+
 - Vehicle must exist
 - User (conductor) must exist
 - User must have valid license for vehicle type
@@ -385,6 +416,7 @@ curl -X POST http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores \
 **Response:** `201 Created` with authorized driver data
 
 **Example Response:**
+
 ```json
 {
   "id": "auth-driver-123",
@@ -402,6 +434,7 @@ curl -X POST http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores \
 **Note:** Returns the complete `driver` object instead of just `userId`. Internal fields are not exposed.
 
 **Errors possible:**
+
 - `400 Bad Request` - License validation fails
 - `404 Not Found` - Vehicle or user not found
 - `409 Conflict` - User already authorized
@@ -417,11 +450,13 @@ curl -X DELETE http://localhost:3000/vehiculos/{VEHICLE_ID}/conductores/{CONDUCT
 ```
 
 **Validations:**
+
 - Vehicle must exist
 
 **Response:** `204 No Content`
 
 **Errors possible:**
+
 - `404 Not Found` - Vehicle not found
 
 ---
@@ -435,11 +470,13 @@ curl -X GET http://localhost:3000/vehiculos/{VEHICLE_ID}/historial
 ```
 
 **Validations:**
+
 - Vehicle must exist
 
 **Response:** `200 OK` with ownership history
 
 **Example Response:**
+
 ```json
 [
   {
@@ -476,6 +513,7 @@ curl -X GET http://localhost:3000/vehiculos/{VEHICLE_ID}/historial
 **Note:** History is ordered by `fechaInicio` descending (most recent first). Current owner has `fechaFin: null`.
 
 **Errors possible:**
+
 - `404 Not Found` - Vehicle not found
 
 ---
@@ -489,12 +527,14 @@ curl -X GET "http://localhost:3000/usuarios?page=1&limit=10"
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 10)
 
 **Response:** `200 OK` with paginated results
 
 **Example Response:**
+
 ```json
 {
   "data": [
@@ -526,12 +566,14 @@ curl -X GET "http://localhost:3000/vehiculos?page=2&limit=5"
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Items per page (default: 10)
 
 **Response:** `200 OK` with paginated results
 
 **Example Response:**
+
 ```json
 {
   "data": [
@@ -599,14 +641,16 @@ curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000
 
 **Core Requirements (9 automated tests)**: Tests 1-9 are run by `npm run test:api`
 
-**Extra Features (5 documented tests)**: Tests 10-14 cover authorized drivers, ownership history, and pagination
-- Test 10-11: Extra 1 (Authorized drivers)
-- Test 12: Extra 3 (Ownership history)
-- Test 13-14: Bonus (Pagination)
+**Extra Features & Additional Tests (8 automated tests)**: Tests 10-17 cover authorized drivers, ownership history, and pagination
+
+- Tests 10, 15: Extra 1 (Authorized drivers - add & remove)
+- Tests 11, 16, 17: Extra 3 (Ownership history with seed data)
+- Tests 12-13: Bonus (Pagination)
+- Test 14: Additional endpoint (user vehicles)
 
 **Manual-Only Tests (2 additional)**: Tests A-B are additional edge cases for manual verification
 
-**Total documented tests: 16** (9 automated + 5 extra features + 2 manual)
+**Total tests: 19** (17 automated + 2 manual)
 
 ---
 
@@ -620,12 +664,47 @@ curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000
 
 ---
 
+## Docker Setup
+
+### Starting Docker Containers
+
+```bash
+# Start PostgreSQL with both databases
+npm run docker:up
+
+# Or start in detached mode (background)
+npm run docker:up:detach
+```
+
+**What happens:**
+
+1. PostgreSQL container starts
+2. Creates `vehicle_registry` (development database)
+3. Creates `vehicle_registry_test` (test database)
+4. Both databases are ready for migrations
+
+### Running Migrations
+
+```bash
+# Migrate development database
+npm run prisma:migrate
+
+# Migrate test database (if needed)
+npm run prisma:migrate:test
+```
+
+---
+
 ## Viewing Database Data
 
 ### Option 1: Prisma Studio (Recommended - GUI)
 
 ```bash
+# View development database (default)
 npm run prisma:studio
+
+# View test database
+dotenv -e .env.test -- npx prisma studio
 ```
 
 Open http://localhost:5555 to view and edit data visually.
