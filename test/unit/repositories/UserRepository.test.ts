@@ -2,8 +2,7 @@ import '../../setup';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { UserRepository } from '../../../src/repositories/UserRepository';
-import { PrismaClient, User } from '@prisma/client';
-import { LicenseType } from '../../../src/models/dataModels';
+import { PrismaClient, User, LicenseType } from '@prisma/client';
 
 interface MockPrismaClient {
   user: {

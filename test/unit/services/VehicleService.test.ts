@@ -5,8 +5,8 @@ import { VehicleRepository } from '../../../src/repositories/VehicleRepository';
 import { AuthorizedDriverRepository } from '../../../src/repositories/AuthorizedDriverRepository';
 import { OwnershipHistoryRepository } from '../../../src/repositories/OwnershipHistoryRepository';
 import { LicenseValidator } from '../../../src/services/LicenseValidator';
-import { VehicleValidator } from '../../../src/validators/VehicleValidator';
-import { LicenseType, VehicleType } from '../../../src/models/dataModels';
+import { VehicleValidator } from '../../../src/services/VehicleValidator';
+import { LicenseType, VehicleType } from '@prisma/client';
 
 describe('VehicleService', () => {
   let service: VehicleService;

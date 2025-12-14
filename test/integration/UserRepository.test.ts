@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import { UserRepository } from '../../src/repositories/UserRepository';
-import { getPrismaClient } from '../../src/utils/prisma';
-import { LicenseType } from '../../src/models/dataModels';
-import { User } from '@prisma/client';
+import { getPrismaClient } from '../../src/repositories/prisma';
+import { User, LicenseType } from '@prisma/client';
 
 async function createTestUser(data: {
   nombre: string;

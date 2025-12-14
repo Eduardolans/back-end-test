@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { AuthorizedDriverRepository } from '../../../src/repositories/AuthorizedDriverRepository';
-import { LicenseType } from '../../../src/models/dataModels';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, LicenseType } from '@prisma/client';
 
 interface MockPrismaClient {
   authorizedDriver: {

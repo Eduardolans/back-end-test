@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { LicenseValidator } from '../../../src/services/LicenseValidator';
-import { LicenseType, VehicleType } from '../../../src/models/dataModels';
+import { LicenseType, VehicleType } from '@prisma/client';
 
 describe('LicenseValidator', () => {
   let validator: LicenseValidator;

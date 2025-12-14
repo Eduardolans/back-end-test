@@ -1,9 +1,8 @@
 import { expect } from 'chai';
 import { VehicleRepository } from '../../src/repositories/VehicleRepository';
 import { AuthorizedDriverRepository } from '../../src/repositories/AuthorizedDriverRepository';
-import { getPrismaClient } from '../../src/utils/prisma';
-import { LicenseType, VehicleType } from '../../src/models/dataModels';
-import { User } from '@prisma/client';
+import { getPrismaClient } from '../../src/repositories/prisma';
+import { User, LicenseType, VehicleType } from '@prisma/client';
 
 async function createTestUser(data: {
   nombre: string;

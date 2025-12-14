@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { VehicleRepository } from '../../../src/repositories/VehicleRepository';
-import { LicenseType, VehicleType } from '../../../src/models/dataModels';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, LicenseType, VehicleType } from '@prisma/client';
 
 interface MockPrismaClient {
   vehicle: {

@@ -1,13 +1,10 @@
 import { expect } from 'chai';
-import { VehicleValidator } from '../../../src/validators/VehicleValidator';
+import { VehicleValidator } from '../../../src/services/VehicleValidator';
 import { UserRepository } from '../../../src/repositories/UserRepository';
 import { VehicleRepository } from '../../../src/repositories/VehicleRepository';
 import { LicenseValidator } from '../../../src/services/LicenseValidator';
-import {
-  NotFoundError,
-  DuplicityError,
-} from '../../../src/errors/DomainErrors';
-import { LicenseType, VehicleType } from '../../../src/models/dataModels';
+import { NotFoundError, DuplicityError } from '../../../src/services/errors';
+import { LicenseType, VehicleType } from '@prisma/client';
 
 describe('VehicleValidator', () => {
   let validator: VehicleValidator;

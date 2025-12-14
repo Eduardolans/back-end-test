@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { EntityMapper } from '../../../src/mappers/EntityMapper';
-import { LicenseType, VehicleType } from '../../../src/models/dataModels';
+import { EntityMapper } from '../../../src/services/EntityMapper';
+import { LicenseType, VehicleType } from '@prisma/client';
 
 describe('EntityMapper', () => {
   describe('toUserBusiness', () => {

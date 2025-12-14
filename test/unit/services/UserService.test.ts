@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { UserService } from '../../../src/services/UserService';
 import { UserRepository } from '../../../src/repositories/UserRepository';
-import { LicenseType } from '../../../src/models/dataModels';
-import { NotFoundError } from '../../../src/errors/DomainErrors';
+import { LicenseType } from '@prisma/client';
+import { NotFoundError } from '../../../src/services/errors';
 
 describe('UserService', () => {
   let service: UserService;
