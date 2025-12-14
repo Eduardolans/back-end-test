@@ -1,9 +1,6 @@
-import { AuthorizedDriver, User, PrismaClient } from '@prisma/client';
-import { getPrismaClient } from '../utils/prisma';
-
-export type AuthorizedDriverData = AuthorizedDriver & {
-  user: User;
-};
+import { PrismaClient } from '@prisma/client';
+import { getPrismaClient } from './prisma';
+import { AuthorizedDriverData } from './types';
 
 export class AuthorizedDriverRepository {
   private prisma: PrismaClient;

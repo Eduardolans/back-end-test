@@ -1,8 +1,11 @@
 import { UserRepository } from '../repositories/UserRepository';
-import { PaginationOptions, PaginatedResult } from '../models/types';
-import { UserBusiness } from '../models/businessModels';
-import { NotFoundError } from '../errors/DomainErrors';
-import { EntityMapper } from '../mappers/EntityMapper';
+import {
+  PaginationOptionsData,
+  PaginatedResultData,
+} from '../repositories/types';
+import { UserBusiness } from './types';
+import { NotFoundError } from './errors';
+import { EntityMapper } from './EntityMapper';
 
 export class UserService {
   constructor(private userRepository: UserRepository) {}
@@ -13,8 +16,8 @@ export class UserService {
   }
 
   public async getAllUsersPaginated(
-    options: PaginationOptions
-  ): Promise<PaginatedResult<UserBusiness>> {
+    options: PaginationOptionsData
+  ): Promise<PaginatedResultData<UserBusiness>> {
     const result = await this.userRepository.findAllPaginated(options);
     return {
       ...result,

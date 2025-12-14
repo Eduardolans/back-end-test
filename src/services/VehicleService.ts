@@ -1,18 +1,17 @@
 import { VehicleRepository } from '../repositories/VehicleRepository';
 import { AuthorizedDriverRepository } from '../repositories/AuthorizedDriverRepository';
 import { OwnershipHistoryRepository } from '../repositories/OwnershipHistoryRepository';
-import { VehicleValidator } from '../validators/VehicleValidator';
-import {
-  CreateVehicleDTO,
-  PaginationOptions,
-  PaginatedResult,
-} from '../models/types';
+import { VehicleValidator } from './VehicleValidator';
 import {
   VehicleBusiness,
+  CreateVehicleBusiness,
   AuthorizedDriverBusiness,
   OwnershipHistoryBusiness,
-} from '../models/businessModels';
-import { EntityMapper } from '../mappers/EntityMapper';
+  PaginationOptionsBusiness,
+  PaginatedResultBusiness,
+} from './types';
+import { EntityMapper } from './EntityMapper';
+import { PaginationOptionsData } from '../repositories/types';
 
 export class VehicleService {
   constructor(
@@ -23,7 +22,7 @@ export class VehicleService {
   ) {}
 
   public async registerVehicle(
-    data: CreateVehicleDTO
+    data: CreateVehicleBusiness
   ): Promise<VehicleBusiness> {
     await this.vehicleValidator.validateOwnerExists(data.propietario_id);
     await this.vehicleValidator.validateMatriculaUnique(data.matricula);
@@ -88,15 +87,17 @@ export class VehicleService {
   }
 
   public async getAllVehiclesPaginated(
-    options: PaginationOptions
-  ): Promise<PaginatedResult<VehicleBusiness>> {
-    const result = await this.vehicleRepository.findAllPaginated(options);
+    options: PaginationOptionsBusiness
+  ): Promise<PaginatedResultBusiness<VehicleBusiness>> {
+    const result = await this.vehicleRepository.findAllPaginated(
+      options as PaginationOptionsData
+    );
     return {
       ...result,
       data: result.data.map((v) =>
         EntityMapper.toVehicleBusiness(v, v.propietario)
       ),
-    };
+    } as PaginatedResultBusiness<VehicleBusiness>;
   }
 
   public async addAuthorizedDriver(

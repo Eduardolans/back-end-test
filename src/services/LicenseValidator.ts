@@ -1,4 +1,4 @@
-import { LicenseType, VehicleType } from '../models/dataModels';
+import { LicenseType, VehicleType } from '@prisma/client';
 
 export class LicenseValidator {
   private readonly licenseVehicleMap: Map<LicenseType, VehicleType> = new Map([

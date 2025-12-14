@@ -1,9 +1,6 @@
-import { OwnershipHistory, User } from '@prisma/client';
-import { getPrismaClient } from '../utils/prisma';
-
-export type OwnershipHistoryData = OwnershipHistory & {
-  user: User;
-};
+import { OwnershipHistory } from '@prisma/client';
+import { getPrismaClient } from './prisma';
+import { OwnershipHistoryData } from './types';
 
 export class OwnershipHistoryRepository {
   private prisma = getPrismaClient();

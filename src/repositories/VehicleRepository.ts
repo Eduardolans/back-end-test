@@ -1,14 +1,11 @@
-import { PrismaClient, Vehicle, User } from '@prisma/client';
-import { getPrismaClient } from '../utils/prisma';
+import { PrismaClient } from '@prisma/client';
+import { getPrismaClient } from './prisma';
 import {
-  CreateVehicleDTO,
-  PaginationOptions,
-  PaginatedResult,
-} from '../models/types';
-
-export type VehicleData = Vehicle & {
-  propietario: User;
-};
+  CreateVehicleData,
+  PaginationOptionsData,
+  PaginatedResultData,
+  VehicleData,
+} from './types';
 
 export class VehicleRepository {
   private prisma: PrismaClient;
@@ -17,7 +14,7 @@ export class VehicleRepository {
     this.prisma = prisma || getPrismaClient();
   }
 
-  public async create(data: CreateVehicleDTO): Promise<VehicleData> {
+  public async create(data: CreateVehicleData): Promise<VehicleData> {
     return await this.prisma.vehicle.create({
       data: {
         marca: data.marca,
@@ -69,8 +66,8 @@ export class VehicleRepository {
   }
 
   public async findAllPaginated(
-    options: PaginationOptions
-  ): Promise<PaginatedResult<VehicleData>> {
+    options: PaginationOptionsData
+  ): Promise<PaginatedResultData<VehicleData>> {
     const skip = (options.page - 1) * options.limit;
 
     const [data, total] = await Promise.all([

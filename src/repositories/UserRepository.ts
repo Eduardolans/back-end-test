@@ -1,6 +1,6 @@
 import { PrismaClient, User } from '@prisma/client';
-import { getPrismaClient } from '../utils/prisma';
-import { PaginationOptions, PaginatedResult } from '../models/types';
+import { getPrismaClient } from './prisma';
+import { PaginationOptionsData, PaginatedResultData } from './types';
 
 export class UserRepository {
   private prisma: PrismaClient;
@@ -26,8 +26,8 @@ export class UserRepository {
   }
 
   public async findAllPaginated(
-    options: PaginationOptions
-  ): Promise<PaginatedResult<User>> {
+    options: PaginationOptionsData
+  ): Promise<PaginatedResultData<User>> {
     const skip = (options.page - 1) * options.limit;
 
     const [data, total] = await Promise.all([
