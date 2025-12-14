@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { VehicleController } from '../controllers/VehicleController';
-import { VehicleService } from '../services/VehicleService';
-import { UserRepository } from '../repositories/UserRepository';
-import { VehicleRepository } from '../repositories/VehicleRepository';
-import { AuthorizedDriverRepository } from '../repositories/AuthorizedDriverRepository';
-import { OwnershipHistoryRepository } from '../repositories/OwnershipHistoryRepository';
-import { LicenseValidator } from '../services/LicenseValidator';
-import { VehicleValidator } from '../validators/VehicleValidator';
+import { VehicleService } from '../../services/VehicleService';
+import { UserRepository } from '../../repositories/UserRepository';
+import { VehicleRepository } from '../../repositories/VehicleRepository';
+import { AuthorizedDriverRepository } from '../../repositories/AuthorizedDriverRepository';
+import { OwnershipHistoryRepository } from '../../repositories/OwnershipHistoryRepository';
+import { LicenseValidator } from '../../services/LicenseValidator';
+import { VehicleValidator } from '../../services/VehicleValidator';
 
 const router = Router();
 

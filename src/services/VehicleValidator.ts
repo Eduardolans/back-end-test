@@ -1,12 +1,8 @@
 import { UserRepository } from '../repositories/UserRepository';
 import { VehicleRepository } from '../repositories/VehicleRepository';
-import { LicenseValidator } from '../services/LicenseValidator';
-import {
-  NotFoundError,
-  ValidationError,
-  DuplicityError,
-} from '../errors/DomainErrors';
-import { Vehicle, VehicleType } from '../models/dataModels';
+import { LicenseValidator } from './LicenseValidator';
+import { NotFoundError, ValidationError, DuplicityError } from './errors';
+import { Vehicle, VehicleType } from '@prisma/client';
 
 export class VehicleValidator {
   constructor(
