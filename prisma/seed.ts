@@ -112,6 +112,89 @@ async function main(): Promise<void> {
   });
   console.log('✅ Created vehicle:', vehicle3.marca, vehicle3.modelo);
 
+  // Add authorized drivers
+  await prisma.authorizedDriver.create({
+    data: {
+      vehicleId: vehicle1.id,
+      userId: user5.id,
+    },
+  });
+  console.log(
+    `✅ Added authorized driver: ${user5.nombre} for ${vehicle1.marca} ${vehicle1.modelo}`
+  );
+
+  await prisma.authorizedDriver.create({
+    data: {
+      vehicleId: vehicle1.id,
+      userId: user2.id,
+    },
+  });
+  console.log(
+    `✅ Added authorized driver: ${user2.nombre} for ${vehicle1.marca} ${vehicle1.modelo}`
+  );
+
+  // Add ownership history (simulating previous ownership periods)
+  const oldDate1 = new Date();
+  oldDate1.setMonth(oldDate1.getMonth() - 6);
+
+  const oldDate2 = new Date();
+  oldDate2.setMonth(oldDate2.getMonth() - 3);
+
+  const endDate1 = new Date();
+  endDate1.setMonth(endDate1.getMonth() - 3);
+
+  // Previous ownership: user5 owned vehicle1 from 6 months ago to 3 months ago
+  await prisma.ownershipHistory.create({
+    data: {
+      vehicleId: vehicle1.id,
+      userId: user5.id,
+      fechaInicio: oldDate1,
+      fechaFin: endDate1,
+    },
+  });
+  console.log(
+    `✅ Created ownership history: ${vehicle1.marca} ${vehicle1.modelo} - Previous owner: ${user5.nombre}`
+  );
+
+  // Current ownership: user1 owns vehicle1 from 3 months ago to now
+  await prisma.ownershipHistory.create({
+    data: {
+      vehicleId: vehicle1.id,
+      userId: user1.id,
+      fechaInicio: endDate1,
+      fechaFin: null,
+    },
+  });
+  console.log(
+    `✅ Created ownership history: ${vehicle1.marca} ${vehicle1.modelo} - Current owner: ${user1.nombre}`
+  );
+
+  // Previous ownership: user1 owned vehicle2 from 3 months ago until now (when it was transferred to user2)
+  await prisma.ownershipHistory.create({
+    data: {
+      vehicleId: vehicle2.id,
+      userId: user1.id,
+      fechaInicio: oldDate2,
+      fechaFin: new Date(),
+    },
+  });
+  console.log(
+    `✅ Created ownership history: ${vehicle2.marca} ${vehicle2.modelo} - Previous owner: ${user1.nombre}`
+  );
+
+  // Current ownership: user2 owns vehicle2 from now
+  await prisma.ownershipHistory.create({
+    data: {
+      vehicleId: vehicle2.id,
+      userId: user2.id,
+      fechaInicio: new Date(),
+      fechaFin: null,
+    },
+  });
+  console.log(
+    `✅ Created ownership history: ${vehicle2.marca} ${vehicle2.modelo} - Current owner: ${user2.nombre}`
+  );
+
   console.log('\n📋 Test Data Summary:');
   console.log('==========================================');
   console.log(`User 1: ${user1.nombre} (${user1.id})`);
@@ -154,6 +237,20 @@ async function main(): Promise<void> {
     `  - License: Type B (Valid until ${futureDate.toISOString().split('T')[0]})`
   );
   console.log('  - No vehicles');
+  console.log('');
+  console.log('📝 Additional Test Data:');
+  console.log('------------------------------------------');
+  console.log(`Authorized Drivers for ${vehicle1.marca} ${vehicle1.modelo}:`);
+  console.log(`  - ${user5.nombre}`);
+  console.log(`  - ${user2.nombre}`);
+  console.log('');
+  console.log('Ownership History:');
+  console.log(
+    `  - ${vehicle1.marca} ${vehicle1.modelo}: ${user5.nombre} → ${user1.nombre} (6 months ago)`
+  );
+  console.log(
+    `  - ${vehicle2.marca} ${vehicle2.modelo}: ${user1.nombre} → ${user2.nombre} (3 months ago)`
+  );
   console.log('==========================================\n');
 }
 
