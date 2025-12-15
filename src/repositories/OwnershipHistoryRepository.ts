@@ -1,9 +1,13 @@
-import { OwnershipHistory } from '@prisma/client';
+import { OwnershipHistory, PrismaClient } from '@prisma/client';
 import { getPrismaClient } from './prisma';
 import { OwnershipHistoryData } from './types';
 
 export class OwnershipHistoryRepository {
-  private prisma = getPrismaClient();
+  private prisma: PrismaClient;
+
+  constructor(prisma?: PrismaClient) {
+    this.prisma = prisma || getPrismaClient();
+  }
 
   public async create(
     vehicleId: string,
