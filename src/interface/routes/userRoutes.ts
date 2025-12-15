@@ -21,7 +21,7 @@ const vehicleValidator = new VehicleValidator(
   vehicleRepository,
   licenseValidator
 );
-const userService = new UserService(userRepository);
+const userService = new UserService(userRepository, vehicleRepository);
 const vehicleService = new VehicleService(
   vehicleRepository,
   authorizedDriverRepository,
@@ -32,5 +32,6 @@ const userController = new UserController(userService, vehicleService);
 
 router.get('/', userController.getAllUsers);
 router.get('/:id/vehiculos', userController.getUserVehicles);
+router.delete('/:id/permiso', userController.revokePermit);
 
 export default router;

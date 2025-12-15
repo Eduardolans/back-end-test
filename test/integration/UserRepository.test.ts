@@ -159,4 +159,35 @@ describe('UserRepository Integration Tests', () => {
       expect(result.page).to.equal(2);
     });
   });
+
+  describe('updatePermitExpiration', () => {
+    it('should update permit expiration date', async () => {
+      const futureDate = new Date('2026-12-31');
+      const createdUser = await createTestUser({
+        nombre: 'Carlos Ruiz',
+        email: 'carlos@test.com',
+        tipoPermiso: LicenseType.B,
+        permisoValidoHasta: futureDate,
+      });
+
+      const newExpirationDate = new Date('2000-01-01');
+      const updatedUser = await repository.updatePermitExpiration(
+        createdUser.id,
+        newExpirationDate
+      );
+
+      expect(updatedUser.id).to.equal(createdUser.id);
+      expect(updatedUser.permisoValidoHasta.toISOString()).to.equal(
+        newExpirationDate.toISOString()
+      );
+      expect(updatedUser.nombre).to.equal('Carlos Ruiz');
+      expect(updatedUser.tipoPermiso).to.equal(LicenseType.B);
+
+      const userFromDb = await repository.findById(createdUser.id);
+      expect(userFromDb).to.not.be.null;
+      expect(userFromDb?.permisoValidoHasta.toISOString()).to.equal(
+        newExpirationDate.toISOString()
+      );
+    });
+  });
 });

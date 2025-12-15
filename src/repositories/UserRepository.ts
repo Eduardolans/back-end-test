@@ -46,4 +46,14 @@ export class UserRepository {
       totalPages: Math.ceil(total / options.limit),
     };
   }
+
+  public async updatePermitExpiration(
+    userId: string,
+    newDate: Date
+  ): Promise<User> {
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: { permisoValidoHasta: newDate },
+    });
+  }
 }

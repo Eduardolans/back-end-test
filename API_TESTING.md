@@ -739,6 +739,93 @@ curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000
 
 ---
 
+## Additional Endpoint Documentation
+
+### 🔍 DELETE /usuarios/:id/permiso - Revoke user license
+
+**Extra 2: Revocar permiso de conducción**
+
+```bash
+curl -X DELETE http://localhost:3000/usuarios/{USER_ID}/permiso
+```
+
+**Description:** Revokes a user's driving license by marking it as expired. This operation is only allowed if the user has no vehicles registered as owner.
+
+**Validations:**
+
+- User must exist
+- User must not have any vehicles registered as owner
+- If user has vehicles, the operation is rejected
+
+**Response:** `204 No Content` (successful revocation)
+
+**Example (Success - User without vehicles):**
+
+```bash
+# Assuming USER_ID has no vehicles
+curl -X DELETE http://localhost:3000/usuarios/550e8400-e29b-41d4-a716-446655440000/permiso
+```
+
+**Response:** `204 No Content` (empty body)
+
+**Example (Failure - User with vehicles):**
+
+```bash
+# Assuming USER_ID owns vehicles
+curl -X DELETE http://localhost:3000/usuarios/550e8400-e29b-41d4-a716-446655440000/permiso
+```
+
+**Response:** `400 Bad Request`
+
+```json
+{
+  "error": "ValidationError",
+  "message": "Cannot revoke permit: user has vehicles registered"
+}
+```
+
+**Errors possible:**
+
+- `400 Bad Request` - User has vehicles registered
+- `404 Not Found` - User not found
+
+**Implementation Notes:**
+
+- The license is not deleted, only marked as expired (set to year 2000)
+- The user can still exist in the system as an authorized driver for other vehicles
+- Only ownership (propietario) is checked, not authorized driver status
+- This is a reversible operation (license expiration date can be updated)
+
+**Manual Testing with Seed Data:**
+
+To test this endpoint manually with seed data:
+
+1. **Test SUCCESS case** (user without vehicles):
+```bash
+# User 5 (María González) has no vehicles as owner, only as authorized driver
+# Get User 5 ID first
+npm run get-users
+
+# Revoke permit (should succeed)
+curl -X DELETE http://localhost:3000/usuarios/{USER5_ID}/permiso
+# Expected: 204 No Content
+```
+
+2. **Test FAILURE case** (user with vehicles):
+```bash
+# User 1 (Juan Pérez) owns Vehicle 1 (Toyota Corolla)
+# Get User 1 ID first
+npm run get-users
+
+# Try to revoke permit (should fail)
+curl -X DELETE http://localhost:3000/usuarios/{USER1_ID}/permiso
+# Expected: 400 Bad Request - "Cannot revoke permit: user has vehicles registered"
+```
+
+**Note:** This endpoint is not included in the automated test script (`test-api.sh`) because it modifies the database in a way that would affect subsequent tests. Test manually after seeding.
+
+---
+
 ## Test Summary
 
 **Core Requirements (9 automated tests)**: Tests 1-9 are run by `npm run test:api`
@@ -751,7 +838,9 @@ curl -X PUT http://localhost:3000/vehiculos/00000000-0000-0000-0000-000000000000
 
 **Manual-Only Tests (3 additional)**: Tests A-C are additional edge cases for manual verification
 
-**Total tests: 20** (17 automated + 3 manual)
+**Extra 2: Revoke License (manual testing)**: DELETE /usuarios/:id/permiso - See "Additional Endpoint Documentation" section above for manual testing instructions
+
+**Total tests: 20** (17 automated + 3 manual) + Extra 2 (manual)
 
 ---
 

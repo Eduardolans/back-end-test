@@ -9,6 +9,7 @@ interface MockPrismaClient {
     findUnique: sinon.SinonStub;
     findMany: sinon.SinonStub;
     count: sinon.SinonStub;
+    update: sinon.SinonStub;
   };
 }
 
@@ -22,6 +23,7 @@ describe('UserRepository Unit Tests', () => {
         findUnique: sinon.stub(),
         findMany: sinon.stub(),
         count: sinon.stub(),
+        update: sinon.stub(),
       },
     };
 
@@ -171,6 +173,36 @@ describe('UserRepository Unit Tests', () => {
         take: 10,
       });
       sinon.assert.calledOnce(countStub);
+    });
+  });
+
+  describe('updatePermitExpiration', () => {
+    it('should call prisma.user.update with correct data', async () => {
+      const userId = 'user-123';
+      const newExpirationDate = new Date('2000-01-01');
+      const mockUpdatedUser: User = {
+        id: userId,
+        nombre: 'Test User',
+        email: 'test@test.com',
+        tipoPermiso: LicenseType.B,
+        permisoValidoHasta: newExpirationDate,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const updateStub = prismaMock.user.update;
+      updateStub.resolves(mockUpdatedUser);
+
+      const result = await repository.updatePermitExpiration(
+        userId,
+        newExpirationDate
+      );
+
+      expect(result).to.deep.equal(mockUpdatedUser);
+      sinon.assert.calledOnceWithExactly(updateStub, {
+        where: { id: userId },
+        data: { permisoValidoHasta: newExpirationDate },
+      });
     });
   });
 });

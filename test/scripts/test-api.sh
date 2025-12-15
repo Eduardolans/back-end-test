@@ -170,7 +170,7 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 5: Get all users
+# Test 5: Get all users (SUCCESS)
 echo -e "${YELLOW}Test 5: Get all users${NC}"
 echo -e "GET ${API_URL}/usuarios"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/usuarios)
@@ -196,7 +196,7 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 6: Get all vehicles
+# Test 6: Get all vehicles (SUCCESS)
 echo -e "${YELLOW}Test 6: Get all vehicles${NC}"
 echo -e "GET ${API_URL}/vehiculos"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos)
@@ -225,8 +225,8 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 7: List user vehicles
-echo -e "${YELLOW}Test 7: Get vehicles for user 1${NC}"
+# Test 7: Get user's vehicles (SUCCESS)
+echo -e "${YELLOW}Test 7: Get user's vehicles${NC}"
 echo -e "GET ${API_URL}/usuarios/${USER1_ID}/vehiculos"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/usuarios/${USER1_ID}/vehiculos)
 
@@ -257,7 +257,7 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 8: Transfer ownership (SUCCESS)
+# Test 8: Transfer vehicle ownership (SUCCESS)
 echo -e "${YELLOW}Test 8: Transfer coche from User1 to User5 (both have License B)${NC}"
 echo -e "PUT ${API_URL}/vehiculos/${VEHICLE_ID}/propietario"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X PUT ${API_URL}/vehiculos/${VEHICLE_ID}/propietario \
@@ -379,7 +379,7 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 12: Get ownership history (SUCCESS)
+# Test 12: Get vehicle ownership history (SUCCESS)
 echo -e "${YELLOW}Test 12: Get vehicle ownership history${NC}"
 echo -e "GET ${API_URL}/vehiculos/${VEHICLE_ID}/historial"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos/${VEHICLE_ID}/historial)
@@ -482,9 +482,9 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 15: Remove an authorized driver (Extra 1 - should exist from seed)
+# Test 15: Remove authorized driver (SUCCESS)
 if [ -n "$AUTHORIZED_DRIVER_ID" ] && [ "$AUTHORIZED_DRIVER_ID" != "null" ]; then
-  echo -e "${YELLOW}Test 15: Remove authorized driver from vehicle${NC}"
+  echo -e "${YELLOW}Test 15: Remove authorized driver${NC}"
   echo -e "DELETE ${API_URL}/vehiculos/${VEHICLE1_ID}/conductores/${AUTHORIZED_DRIVER_ID}"
   RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X DELETE ${API_URL}/vehiculos/${VEHICLE1_ID}/conductores/${AUTHORIZED_DRIVER_ID})
 
@@ -501,8 +501,8 @@ else
   echo -e "${YELLOW}Test 15: Skip - No authorized driver found in seed data${NC}\n"
 fi
 
-# Test 16: Get ownership history for vehicle with history (from seed)
-echo -e "${YELLOW}Test 16: Get ownership history for Vehicle 1 (has seed history)${NC}"
+# Test 16: Get ownership history for Vehicle 1 (SUCCESS)
+echo -e "${YELLOW}Test 16: Get ownership history for Vehicle 1${NC}"
 echo -e "GET ${API_URL}/vehiculos/${VEHICLE1_ID}/historial"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos/${VEHICLE1_ID}/historial)
 
@@ -524,8 +524,8 @@ else
   echo -e "Response: ${BODY}\n"
 fi
 
-# Test 17: Get ownership history for Vehicle 2 (also has seed history)
-echo -e "${YELLOW}Test 17: Get ownership history for Vehicle 2 (has seed history)${NC}"
+# Test 17: Get ownership history for Vehicle 2 (SUCCESS)
+echo -e "${YELLOW}Test 17: Get ownership history for Vehicle 2${NC}"
 echo -e "GET ${API_URL}/vehiculos/${VEHICLE2_ID}/historial"
 RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X GET ${API_URL}/vehiculos/${VEHICLE2_ID}/historial)
 

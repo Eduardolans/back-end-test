@@ -49,4 +49,19 @@ export class UserController {
       next(error);
     }
   };
+
+  public revokePermit = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { id } = req.params;
+      await this.userService.revokePermit(id);
+
+      res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  };
 }
