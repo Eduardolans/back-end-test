@@ -689,6 +689,49 @@ curl -X GET http://localhost:3000/vehiculos/{VEHICLE2_ID}/historial
 
 ---
 
+### ✅ Test 18: Revoke user permit (SUCCESS)
+
+**Extra 2: Revocar permiso de conducción (automated)**
+
+```bash
+curl -X DELETE http://localhost:3000/usuarios/{USER4_ID}/permiso
+```
+
+**Description:** Revokes a user's driving license by marking it as expired. This operation is only allowed if the user has no vehicles registered as owner. The test uses User 4 from seed data, who has an expired license and no vehicles.
+
+**Validations:**
+
+- User must exist
+- User must not have any vehicles registered as owner
+
+**Response:** `200 OK` with updated user data
+
+**Example Response:**
+
+```json
+{
+  "id": "user-456",
+  "nombre": "Ana Martínez",
+  "email": "ana.martinez@example.com",
+  "tipoPermiso": "B",
+  "permisoValidoHasta": "2000-01-01T00:00:00.000Z"
+}
+```
+
+**Automated Test Validations:**
+
+- Status code is 200 OK
+- Response body contains updated user with revoked permit date (2000-01-01)
+- Business model format is correct (no `createdAt`, `updatedAt` fields)
+- `permisoValidoHasta` is set to year 2000
+
+**Errors possible:**
+
+- `400 Bad Request` - User has vehicles registered
+- `404 Not Found` - User not found
+
+---
+
 ## Additional Manual Tests (Not Automated)
 
 These edge cases can be tested manually but are not included in the automated script:
@@ -757,7 +800,7 @@ curl -X DELETE http://localhost:3000/usuarios/{USER_ID}/permiso
 - User must not have any vehicles registered as owner
 - If user has vehicles, the operation is rejected
 
-**Response:** `204 No Content` (successful revocation)
+**Response:** `200 OK` with updated user data (successful revocation)
 
 **Example (Success - User without vehicles):**
 
@@ -766,7 +809,19 @@ curl -X DELETE http://localhost:3000/usuarios/{USER_ID}/permiso
 curl -X DELETE http://localhost:3000/usuarios/550e8400-e29b-41d4-a716-446655440000/permiso
 ```
 
-**Response:** `204 No Content` (empty body)
+**Response:** `200 OK`
+
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "nombre": "Pedro González",
+  "email": "pedro.gonzalez@example.com",
+  "tipoPermiso": "B",
+  "permisoValidoHasta": "2000-01-01T00:00:00.000Z"
+}
+```
+
+**Note:** Returns the updated user object with the revoked permit date. Internal fields (`createdAt`, `updatedAt`) are not exposed.
 
 **Example (Failure - User with vehicles):**
 
@@ -822,7 +877,7 @@ curl -X DELETE http://localhost:3000/usuarios/{USER1_ID}/permiso
 # Expected: 400 Bad Request - "Cannot revoke permit: user has vehicles registered"
 ```
 
-**Note:** This endpoint is not included in the automated test script (`test-api.sh`) because it modifies the database in a way that would affect subsequent tests. Test manually after seeding.
+**Note:** This endpoint is included in the automated test script as Test 18. The test uses User 4 (who has no vehicles) and runs at the end to avoid affecting other tests.
 
 ---
 
@@ -830,17 +885,16 @@ curl -X DELETE http://localhost:3000/usuarios/{USER1_ID}/permiso
 
 **Core Requirements (9 automated tests)**: Tests 1-9 are run by `npm run test:api`
 
-**Extra Features & Additional Tests (8 automated tests)**: Tests 10-17 cover authorized drivers, ownership history, and pagination
+**Extra Features & Additional Tests (9 automated tests)**: Tests 10-18 cover authorized drivers, revoke permit, ownership history, and pagination
 
 - Tests 10, 11, 15: Extra 1 (Authorized drivers - add, list & remove)
+- Test 18: Extra 2 (Revoke permit for user without vehicles)
 - Tests 12, 16, 17: Extra 3 (Ownership history - after transfer + seed data)
 - Tests 13-14: Bonus (Pagination)
 
 **Manual-Only Tests (3 additional)**: Tests A-C are additional edge cases for manual verification
 
-**Extra 2: Revoke License (manual testing)**: DELETE /usuarios/:id/permiso - See "Additional Endpoint Documentation" section above for manual testing instructions
-
-**Total tests: 20** (17 automated + 3 manual) + Extra 2 (manual)
+**Total tests: 21** (18 automated + 3 manual)
 
 ---
 

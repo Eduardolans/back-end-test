@@ -72,9 +72,9 @@ export class UserController {
   ): Promise<void> => {
     try {
       const { id } = req.params;
-      await this.userService.revokePermit(id);
+      const user = await this.userService.revokePermit(id);
 
-      res.status(204).send();
+      res.status(200).json(user);
     } catch (error) {
       next(error);
     }

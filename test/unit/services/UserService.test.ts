@@ -131,15 +131,23 @@ describe('UserService', () => {
         updatedAt: new Date(),
       };
 
+      const revokedDate = new Date('2000-01-01');
+      const updatedUser = {
+        ...mockUser,
+        permisoValidoHasta: revokedDate,
+      };
+
       userRepository.findById = () => Promise.resolve(mockUser);
       vehicleRepository.findByOwner = () => Promise.resolve([]);
       userRepository.updatePermitExpiration = () =>
-        Promise.resolve({
-          ...mockUser,
-          permisoValidoHasta: new Date('2000-01-01'),
-        });
+        Promise.resolve(updatedUser);
 
-      await service.revokePermit(userId);
+      const result = await service.revokePermit(userId);
+
+      expect(result).to.not.be.null;
+      expect(result.id).to.equal(userId);
+      expect(result.nombre).to.equal('Test User');
+      expect(result.permisoValidoHasta).to.deep.equal(revokedDate);
     });
 
     it('should throw ValidationError when user has vehicles', async () => {

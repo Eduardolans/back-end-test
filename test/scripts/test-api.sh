@@ -4,10 +4,11 @@
 
 # Automated API Tests for Vehicle Registry
 #
-# This script runs 17 automated test scenarios that align with API_TESTING.md
+# This script runs 18 automated test scenarios that align with API_TESTING.md
 # Tests cover:
 #   - Core requirements (Tests 1-9)
 #   - Extra 1: Authorized drivers (Tests 10, 11, 15)
+#   - Extra 2: Revoke permit (Test 18)
 #   - Extra 3: Ownership history (Tests 12, 16, 17)
 #   - Bonus: Pagination (Tests 13-14)
 #
@@ -536,6 +537,42 @@ if [ "$HTTP_CODE" = "200" ]; then
   HISTORY_COUNT=$(echo "$BODY" | jq '. | length')
   echo -e "${GREEN}✅ Status: 200 OK${NC}"
   echo -e "Found ${HISTORY_COUNT} ownership record(s)\n"
+else
+  echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
+  echo -e "Response: ${BODY}\n"
+fi
+
+# Test 18: Revoke user permit (SUCCESS)
+echo -e "${YELLOW}Test 18: Revoke permit for user without vehicles${NC}"
+echo -e "DELETE ${API_URL}/usuarios/${USER4_ID}/permiso"
+RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X DELETE ${API_URL}/usuarios/${USER4_ID}/permiso)
+
+HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE" | cut -d: -f2)
+BODY=$(echo "$RESPONSE" | sed '/HTTP_CODE/d')
+
+if [ "$HTTP_CODE" = "200" ]; then
+  echo -e "${GREEN}✅ Status: 200 OK${NC}"
+
+  # Validate business model format (should NOT have internal fields)
+  HAS_CREATED_AT=$(echo "$BODY" | jq 'has("createdAt")')
+  HAS_UPDATED_AT=$(echo "$BODY" | jq 'has("updatedAt")')
+  PERMIT_DATE=$(echo "$BODY" | jq -r '.permisoValidoHasta')
+
+  if [ "$HAS_CREATED_AT" = "false" ] && [ "$HAS_UPDATED_AT" = "false" ]; then
+    echo -e "${GREEN}✅ Business model format correct (no internal fields)${NC}"
+  else
+    echo -e "${RED}⚠️  Warning: User format includes internal fields${NC}"
+    echo -e "   Has createdAt: $HAS_CREATED_AT | Has updatedAt: $HAS_UPDATED_AT"
+  fi
+
+  # Validate permit was revoked (should be 2000-01-01)
+  if [[ "$PERMIT_DATE" == "2000-01-01"* ]]; then
+    echo -e "${GREEN}✅ Permit successfully revoked (date: ${PERMIT_DATE})${NC}"
+  else
+    echo -e "${RED}⚠️  Warning: Permit date unexpected: ${PERMIT_DATE}${NC}"
+  fi
+
+  echo -e "Response: ${BODY}\n"
 else
   echo -e "${RED}❌ Status: ${HTTP_CODE}${NC}"
   echo -e "Response: ${BODY}\n"

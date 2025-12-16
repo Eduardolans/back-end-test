@@ -37,7 +37,7 @@ export class UserService {
     return EntityMapper.toUserBusiness(user);
   }
 
-  public async revokePermit(userId: string): Promise<void> {
+  public async revokePermit(userId: string): Promise<UserBusiness> {
     const user = await this.userRepository.findById(userId);
     if (user === null) {
       throw new NotFoundError('User', userId);
@@ -50,9 +50,10 @@ export class UserService {
       );
     }
 
-    await this.userRepository.updatePermitExpiration(
+    const updatedUser = await this.userRepository.updatePermitExpiration(
       userId,
       new Date('2000-01-01')
     );
+    return EntityMapper.toUserBusiness(updatedUser);
   }
 }
