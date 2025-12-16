@@ -32,6 +32,7 @@ const userController = new UserController(userService, vehicleService);
 
 router.get('/', userController.getAllUsers);
 router.get('/:id/vehiculos', userController.getUserVehicles);
+router.get('/:id', userController.getUserById);
 router.delete('/:id/permiso', userController.revokePermit);
 
 export default router;

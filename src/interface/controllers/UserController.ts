@@ -50,6 +50,21 @@ export class UserController {
     }
   };
 
+  public getUserById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const { id } = req.params;
+      const user = await this.userService.getUserById(id);
+
+      res.status(200).json(user);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public revokePermit = async (
     req: Request,
     res: Response,
